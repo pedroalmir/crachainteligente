@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1080480889865",
+    "firebase_url": "https://crachainteligence.firebaseio.com",
+    "project_id": "crachainteligence",
+    "storage_bucket": "crachainteligence.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080480889865:android:72caa29734a53d4a",
+        "android_client_info": {
+          "package_name": "com.great.crachainteligente"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1080480889865-3njpokaio5d74r6u6bu780fl1aphe0r0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7ZWRpEu6ARKe2pjlqqoEyOEuOqv4llPE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
