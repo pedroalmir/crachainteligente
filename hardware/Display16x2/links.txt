@@ -1,0 +1,3 @@
+https://www.fernandok.com/2018/04/esp32-com-arduino-ide-programacao-multi.html
+
+https://randomnerdtutorials.com/esp32-esp8266-i2c-lcd-arduino-ide/

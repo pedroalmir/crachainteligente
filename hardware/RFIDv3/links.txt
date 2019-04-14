@@ -1,0 +1,6 @@
+https://lastminuteengineers.com/how-rfid-works-rc522-arduino-tutorial/
+https://www.instructables.com/id/ESP32-With-RFID-Access-Control/
+http://www.neilkolban.com/esp32/docs/cpp_utils/html/class_m_f_r_c522.html#a20c559f09927a7c5f91295f6158e4342
+https://codebender.cc/sketch:261525#RFID%20RC522%20Reader%20Writer%20(Full).ino
+https://www.fernandok.com/2018/02/esp32-com-rfid-controle-de-acesso.html
+https://arduino.stackexchange.com/questions/13114/rfid-default-keys-check-with-rc522
