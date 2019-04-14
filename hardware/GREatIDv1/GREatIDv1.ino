@@ -18,6 +18,30 @@ MFRC522::MIFARE_Key key;
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 /**
+ * GREatID Hardware
+ * Pinout:
+ *  RFID 3.3V -|3.3V       GND|- RFID GND
+ *            -|EN      GPIO23|- RFID MOSI: used to receive data
+ *            -|GPIO36  GPIO22|- RFID RST: reset pin
+ *            -|GPIO39     TX0|-
+ *            -|GPIO34     RX0|-
+ *            -|GPIO35  GPIO21|- RFID SDA: bi-directional line
+ *            -|GPIO32     GND|- LEDs GND
+ *            -|GPIO33  GPIO19|- RFID MISO: used to send data
+ *            -|GPIO25  GPIO18|- RFID SCK: clock
+ *            -|GPOI26  GPIO05|- I2C SCL
+ *            -|GPIO27  GPIO17|-
+ *            -|GPIO14  GPIO16|-
+ * LED_DENIED -|GPIO12  GPIO04|- I2C SDA
+ *    I2C GND -|GND     GPIO00|-
+ *            -|GPIO13  GPIO02|- LED_GRANTED
+ *            -|GPIO09  GPIO15|- 
+ *            -|GPIO10  GPIO08|-
+ *            -|GPIO11  GPIO07|-
+ * I2C VCC(5v)-|Vin(5v) GPIO06|-
+ *  
+ *  >> Please, don't change it!!!
+ *  
  * Card: E0 8A 6F A3
  * Tag: 96 2B 66 AC
  * Type: MIFARE 1KB
@@ -239,8 +263,8 @@ void loop() {
       printMessageLCD("Welcome, ", name, LED_ACCESS_GRANTED);  
     }else if(mfrc522.uid.uidByte[0] == 0x96 && mfrc522.uid.uidByte[1] == 0x2B &&
         mfrc522.uid.uidByte[2] == 0x66 && mfrc522.uid.uidByte[3] == 0xAC){
-      Serial.println("Sorry, " + name + "!");
-      printMessageLCD("Sorry, ", name, LED_ACCESS_DENIED);
+      Serial.println("Access Denied, " + name + "!");
+      printMessageLCD("Access Denied, ", name, LED_ACCESS_DENIED);
     }else{
       Serial.println("Are you crazy? Try again!");
       printMessageLCD("Are you crazy?", "Try again!", LED_ACCESS_DENIED);
