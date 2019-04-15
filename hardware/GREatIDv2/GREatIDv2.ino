@@ -17,8 +17,8 @@
 #define LED_ACCESS_GRANTED  2
 #define LED_ACCESS_DENIED   12
 
-#define WIFI_SSID "J221"
-#define WIFI_PWD "847aaubh"
+#define WIFI_SSID "CLARO_2GDB49CF"
+#define WIFI_PWD "9EDB49CF"
 #define FIREBASE_HOST "crachainteligence.firebaseio.com"
 #define FIREBASE_AUTH "QxdC3N03YVSqUmSkrx1s0PlH0FkmGPkYG5TE8bSS"
 
