@@ -50,13 +50,17 @@ export default class Login extends Component {
         this.setState({ isLogin: false });
         console.log('Okay: ' + user.user.email);
         Alert.alert('Info', 'Welcome: ' + user.user.email);
+        this.props.change("main")
       });
   };
   
   render() {
     return (
       <View style={styles.container}>
-        <Image style={styles.icon} resizeMode="contain" source={companyLogo}/>
+        <View style={{backgroundColor:"#559c98", width: "100%", alignItems: "center", marginBottom: h(3)}}>
+          <Image style={styles.icon} resizeMode="contain" source={companyLogo}/>
+        </View>
+        
         <InputField
           placeholder="Email"
           keyboardType="email-address"
@@ -80,14 +84,19 @@ export default class Login extends Component {
           click={this.getStarted}
           isLogin={this.state.isLogin}
         />
+        
+        <TouchableOpacity style={styles.touchable} activeOpacity={0.6}>
+          <Text style={styles.forgotPassword}>Esqueci minha senha</Text>
+        </TouchableOpacity>
+
         <View style={styles.textContainer}>
+          <Text style={styles.createAccountText}>Não tem uma conta ainda? </Text>
+
           <TouchableOpacity onPress={this.props.change('register')} style={styles.touchable} activeOpacity={0.6}>
-            <Text style={styles.createAccount}>Create Account</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.touchable} activeOpacity={0.6}>
-            <Text style={styles.forgotPassword}>Forgot Password</Text>
+            <Text style={styles.createAccount}>Crie uma conta.</Text>
           </TouchableOpacity>
         </View>
+          
       </View>
     )
   }
@@ -115,17 +124,25 @@ const styles = StyleSheet.create({
   },
   touchable: {
     flex: 1,
-  },
+  }, 
   createAccount: {
-    color:'#ffffffEE',
+    color:'#847e7d',
     textAlign: 'center',
     fontSize: totalSize(2),
     fontWeight: '600',
+    marginBottom: 15,
+  },
+  createAccountText: {
+    color:'#847e7d',
+    textAlign: 'center',
+    fontSize: totalSize(2),
+    marginLeft: w(3), 
   },
   forgotPassword: {
-    color:'#ffffffEE',
+    color:'#847e7d',
     textAlign: 'center',
     fontSize: totalSize(2),
     fontWeight: '600',
+    margin: 10, 
   },
 });
