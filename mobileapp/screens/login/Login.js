@@ -6,6 +6,10 @@ import {w, h, totalSize} from '../../api/Dimensions';
 import GetStarted from './GetStarted';
 import MyFirebase from '../../api/MyFirebase';
 
+import Main from '../main/Main';
+
+import MainNavigator from '../../navigator/MainNavigator';
+
 const companyLogo = require('../../assets/logo.png');
 const email = require('../../assets/email.png');
 const password = require('../../assets/password.png');
@@ -48,16 +52,17 @@ export default class Login extends Component {
     MyFirebase.userLogin(email, password)
       .then(user => {
         this.setState({ isLogin: false });
+        //<Main/>
         console.log('Okay: ' + user.user.email);
-        Alert.alert('Info', 'Welcome: ' + user.user.email);
-        this.props.change("main")
+        //Alert.alert('Info', 'Welcome: ' + user.user.email);
+        this.props.change('main');
       });
   };
   
   render() {
     return (
       <View style={styles.container}>
-        <View style={{backgroundColor:"#559c98", width: "100%", alignItems: "center", marginBottom: h(3)}}>
+        <View style={{backgroundColor:"#232323", width: "100%", alignItems: "center", marginBottom: h(3)}}>
           <Image style={styles.icon} resizeMode="contain" source={companyLogo}/>
         </View>
         
@@ -81,7 +86,8 @@ export default class Login extends Component {
           icon={password}
         />
         <GetStarted
-          click={this.getStarted}
+          click={this.props.change('main')}
+                  
           isLogin={this.state.isLogin}
         />
         

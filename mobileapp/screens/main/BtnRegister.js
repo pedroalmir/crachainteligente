@@ -3,20 +3,16 @@ import { StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-nat
 import PropTypes from 'prop-types';
 import {w, h, totalSize} from '../../api/Dimensions';
 
-color = '#50c478';
-
 export default class BtnRegister extends Component {
+    
   render() {
-    color = this.props.isRegister? '#50c478': "#df3b27"
     return (
       <TouchableOpacity
         onPress={this.props.click}
         style={styles.button}
         activeOpacity={0.6}
       >
-        {this.props.isRegister
-          ? <Text style={styles.text}>REGISTRAR ENTRADA</Text>
-          : <Text style={styles.text}>REGISTRAR SAÍDA</Text>}
+        <Text style={styles.text}>{this.props.textButton}</Text>
       </TouchableOpacity>
     );
   }
@@ -24,7 +20,7 @@ export default class BtnRegister extends Component {
 
 BtnRegister.propTypes = {
   click: PropTypes.func.isRequired,
-  isRegister: PropTypes.bool.isRequired,
+  textButton: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -34,7 +30,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: w(2),
-    backgroundColor: color,
+    backgroundColor: '#888',
     borderRadius: w(10),
     marginTop: h(8),
   },
