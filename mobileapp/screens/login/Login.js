@@ -5,7 +5,7 @@ import InputField from '../../components/InputField';
 import {w, h, totalSize} from '../../api/Dimensions';
 import GetStarted from './GetStarted';
 import MyFirebase from '../../api/MyFirebase';
-
+import { LinearGradient } from 'expo';
 import Main from '../main/Main';
 
 import MainNavigator from '../../navigator/MainNavigator';
@@ -59,12 +59,15 @@ export default class Login extends Component {
       });
   };
   
-  render() {
+  render() { 
     return (
       <View style={styles.container}>
-        <View style={{backgroundColor:"#232323", width: "100%", alignItems: "center", marginBottom: h(3)}}>
+        
+        <LinearGradient
+          colors={['#192f6a', '#3b5998', '#4c669f']}
+          style={{ width: "100%", alignItems: "center", marginBottom: h(3)}}>
           <Image style={styles.icon} resizeMode="contain" source={companyLogo}/>
-        </View>
+        </LinearGradient>
         
         <InputField
           placeholder="Email"

@@ -6,21 +6,17 @@ import {
   Text,
   SectionList,
   View,
-  Dimensions,TouchableOpacity,
+  Dimensions, TouchableOpacity,
 } from 'react-native';
 
-
+import { Ionicons } from '@expo/vector-icons';
 
 import Styles from '../assets/styles/mainStyle';
-
-const {width} = Dimensions.get('window');
-const numberGrid = 3;
-const itemWidth = width / numberGrid;
 
 export default class AboutScreen extends React.Component {
   static navigationOptions = {
     drawerLabel: 'Sobre',
-    header:{}
+    header: {}
   };
 
   aspX = Styles.Constants.aspX;
@@ -28,50 +24,93 @@ export default class AboutScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        {/**
-        <View style={Styles.container.toolbar}>            
-          <View style={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-            <TouchableOpacity
-              onPress={() => {this.props.navigation.openDrawer();}} 
-              >
-              <Image source={require('../assets/images/menu.png')}
-                style={Styles.image.iconToolbar}
-                />
-            </TouchableOpacity>
-          </View>
-        </View>
-         */}
-        
-        <ScrollView contentContainerStyle={{alignItems: "flex-start"}} style={{width: Styles.widthScreen, height: Styles.heightScreen*0.65}}>
+      <View style={Styles.container.container}>
+
+          {/** Menu Icon */}
+          <Ionicons
+            onPress={() => { this.props.navigation.openDrawer(); }}
+            style={{
+              justifyContent: 'flex-start',
+              backgroundColor: 'rgba(255,255,255,0)',
+              alignItems: 'flex-start',
+              alignSelf: "flex-start",
+              marginHorizontal: 10,
+            }}
+            name="ios-menu" size={32} color="#232323"
+          />
+        <ScrollView contentContainerStyle={{ alignItems: "flex-start" }} style={{ width: Styles.widthScreen, height: Styles.heightScreen * 0.9 }}>
           <View>
 
-          <SectionList contentContainerStyle={{alignItems: "flex-start"}} style={[{marginTop: 10 * this.aspY, marginBottom: 20 * this.aspY,margin: 0, marginLeft: 0, padding: 5 * this.aspX,}]}
-            renderItem={({item, index, section}) => <Text style={[styles.paragraphText, {margin: 0, paddingBottom: 15 * this.aspY,paddingHorizontal: 10 * this.aspX}]} key={index}>{item}</Text>}
-            renderSectionHeader={({section: {title}}) => (
-                <Text style={[styles.titles, {paddingVertical: 10 * this.aspY,paddingHorizontal: 10 * this.aspX, width: Styles.widthScreen}]}>{title}</Text>
-            )}
-            sections={[
-                {title: "O que é?", data: [
-                    "Crachá inteligente"
-                  ]},
-                  {title: "Grupo de Pesquisa e Apoio", data: [
-                    "\u2023 GREat - Grupo de Redes de Computadores, Engenharia de Software e Sistemas",
-                    "\u2023 UFC - Universidade Federal do Ceará",
-                    "\u2023 MDCC - Mestrado e Doutorado em Ciência da Computação"
-                  ]},
-                  
-                  {title: "App Desenvolvido Por", data: [
-                      "\u2023 Pedro Almir",
-                      "\u2023 Rubens A. S. Silva",
-                      "\u2023 Joseane Vale",
-                      "\u2023 Michel",
-                  ]},
-            ]}
-            keyExtractor={(item, index) => item + index}
-          />
-        </View>
-        </ScrollView>    
+            <SectionList
+              contentContainerStyle={{
+                alignItems: "flex-start"
+              }}
+              style=
+              {{
+                marginTop: 0 * this.aspY, 
+                marginBottom: 0 * this.aspY, 
+                margin: 0, marginLeft: 0, 
+                padding: 0,
+              }}
+              renderItem={
+                ({ item, index, section }) =>
+                  (
+                    <Text
+                      style={[
+                        styles.paragraphText,
+                        {
+
+                        }
+                      ]} key={index}>{item}
+                    </Text>
+                  )
+              }
+              renderSectionHeader={
+                ({ section: { title } }) => (
+                  <Text
+                    style={[
+                      styles.titles,
+                    ]}>{title}
+                  </Text>
+                )
+              }
+              sections={[
+                {
+                  title: "O que é?", data: [
+                    "A aplicação GREat ID visa o desenvolvimento de um sistema de controle de frequência de funcionários por meio de um crachá inteligente.",
+                    "Esse crachá irá dispor de um sensor RFID que ao ser detectado no ato de ingresso ao local de trabalho irá registrar a informação de presença do usuário.",
+                    "O sistema, a partir desse registro, irá gerenciar as horas trabalhadas até o final do expediente."
+                  ]
+                },
+                {
+                  title: "Grupo de Pesquisa e Apoio", data: [
+                    "\u2022 GREat - Grupo de Redes de Computadores, Engenharia de Software e Sistemas",
+                    "\u2022 UFC - Universidade Federal do Ceará",
+                    "\u2022 MDCC - Mestrado e Doutorado em Ciência da Computação",
+                    "\u2022 Departamento de Computação"
+                  ]
+                },
+                {
+                  title: "Desenvolvido por:", data: [
+                    "\u2022 Pedro Almir Martins de Oliveira",
+                    "\u2022 Rubens Anderson de Sousa Silva",
+                    "\u2022 Joseane de Oliveira Vale Paiva",
+                    "\u2022 Michael Ferreira de Sousa",
+
+                  ]
+                },
+                {
+                  title: "Contato:", data: [
+                    "\u2022 rubenssilva@great.ufc.br",
+
+                  ]
+                },
+
+              ]}
+              keyExtractor={(item, index) => item + index}
+            />
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -79,39 +118,41 @@ export default class AboutScreen extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 10 * this.aspX,
+    flex: 1,
     backgroundColor: '#fff',
+    marginTop: 22,
   },
   padraoContainer: {
     alignItems: 'center',
-    marginHorizontal: 50 * this.aspX,
+    marginHorizontal: 50,
   },
   padraoText: {
     fontSize: 17,
     color: 'rgba(96,100,109, 1)',
-    lineHeight: 24 * this.aspY,
     textAlign: 'center',
-    padding: 15 * this.aspX,
+    padding: 15,
   },
   paragraphText: {
     fontSize: 17,
     color: 'rgba(96,100,109, 1)',
     lineHeight: 24 * this.aspY,
     textAlign: 'left',
-    padding: 15 * this.aspX,
     paddingBottom: 5 * this.aspY,
+    paddingTop: 15 * this.aspY,
+    marginTop: 15 * this.aspY,
+    margin: 10,
+    paddingBottom: 15 * this.aspY,
+    paddingHorizontal: 10
   },
   titles: {
     fontSize: 22,
-    padding: 15 * this.aspX,
-    paddingTop: 20 * this.aspY,
+    padding: 15,
     color: 'rgba(10,10,10, 1)',
-    lineHeight: 24 * this.aspY,
     textAlign: 'left',
     borderColor: 'rgba(96,100,109, 0.5)',
-    borderRadius: 20,
     borderBottomWidth: 1,
     borderTopWidth: 1,
+    width: Styles.widthScreen,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -119,10 +160,5 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 0,
   },
-  itemImage: {
-    width: itemWidth,
-    height: itemWidth,
-    resizeMode: 'contain',
-    marginTop: 3 * this.aspY,
-  },
+  
 });

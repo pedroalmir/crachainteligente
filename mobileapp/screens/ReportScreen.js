@@ -9,6 +9,8 @@ import {
     KeyboardAvoidingView,
 } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import RadioForm, {
     RadioButton,
     RadioButtonInput,
@@ -40,16 +42,29 @@ export default class ReportScreen extends React.Component {
     render() {
         return (
             <KeyboardAvoidingView>
+                {/** Menu Icon */}
+                <Ionicons
+                    onPress={() => { this.props.navigation.openDrawer(); }}
+                    style={{
+                        justifyContent: 'flex-start',
+                        backgroundColor: 'rgba(255,255,255,0)',
+                        alignItems: 'flex-start',
+                        alignSelf: "flex-start",
+                        marginHorizontal: 10,
+                        marginTop: Styles.Constants.statusbarMargin,
+                    }}
+                    name="ios-menu" size={32} color="#232323"
+                />
+
                 <Text> Gerar Relatório:</Text>
                 {/** RadioButtons */}
                 <RadioForm
                     formHorizontal={true}
                     animation={true}
                 >
-                    {/* To create radio buttons, loop through your array of options */}
+                    {/* To create radio buttons, loop through your array of options 
                     {radio_props.map((obj, i) => {
                         <RadioButton labelHorizontal={true} key={i} >
-                            {/*  You can set RadioButtonLabel before RadioButtonInput */}
                             <RadioButtonInput
                                 obj={obj}
                                 index={i}
@@ -62,7 +77,7 @@ export default class ReportScreen extends React.Component {
                                 buttonOuterSize={80}
                                 buttonStyle={{}}
                                 buttonWrapStyle={{ marginLeft: 10 }}
-                            />
+                                />
                             <RadioButtonLabel
                                 obj={obj}
                                 index={i}
@@ -70,13 +85,14 @@ export default class ReportScreen extends React.Component {
                                 onPress={onPress}
                                 labelStyle={{ fontSize: 20, color: '#2ecc71' }}
                                 labelWrapStyle={{}}
-                            />
+                                />
                         </RadioButton>
                     })}
+                            */}
 
                 </RadioForm>
                 {/** Charts */}
-                <LineChart
+                <BarChart
                     data={{
                         labels: ['January', 'February', 'March', 'April', 'May', 'June'],
                         datasets: [{

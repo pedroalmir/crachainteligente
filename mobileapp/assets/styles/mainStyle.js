@@ -11,6 +11,8 @@ const colors = {
      cinza : 'rgba(96,100,109, 1)',
      cinzaClaro : '#73707070',
      rubro: "#5b1313",
+     main: "232323",
+     secondary: "2f2f2f"
 }
 
 const Constants = {
@@ -18,6 +20,7 @@ const Constants = {
     baseHeight: 616,
     aspX: 1/360 * Dimensions.get("screen").width,
     aspY: 1/616 * Dimensions.get("screen").height,
+    statusbarMargin: StatusBar.currentHeight, 
 }
 
 
@@ -202,6 +205,10 @@ const styleText = StyleSheet.create({
   });
 
   const styleContainer = StyleSheet.create({
+    container: {
+        marginTop: StatusBar.currentHeight, 
+        flex: 1,
+    }, 
     centerContainer: {
         alignItems: 'center',
         marginTop: 10 * Constants.aspY,

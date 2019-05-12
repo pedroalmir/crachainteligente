@@ -3,12 +3,14 @@ import { createAppContainer, createStackNavigator, createDrawerNavigator } from 
 import Main from '../screens/main/Main';
 import AboutScreen from '../screens/AboutScreen';
 import ReportScreen from '../screens/ReportScreen';
+import ProfileScreen from '../screens/ProfileScreen'
 
-const MainNavigator = createStackNavigator( 
+const MainNavigator = createDrawerNavigator( 
   {
     Home: Main,
-    Reports : ReportScreen,
-    About: AboutScreen,
+    Relatórios : ReportScreen,
+    Perfil: ProfileScreen,
+    Sobre: AboutScreen,
   }
 );
 

@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
 
-import { StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Platform, Image, Text, View, Button } from 'react-native'
+import { StyleSheet, SectionList, ScrollView, TouchableOpacity, TouchableHighlight, Platform, Image, Text, View } from 'react-native'
 
 import { w, h, totalSize } from '../../api/Dimensions';
 import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { Registro } from './Registro';
+import { Ionicons } from '@expo/vector-icons';
+import Styles from '../../assets/styles/mainStyle';
+import { LinearGradient } from 'expo';
 
 /**
  * currentUser : {
@@ -31,6 +34,7 @@ export default class Main extends Component {
     this.state = {
       currentUser: null,
       isRegister: true,
+      horas: 8*60*60,
       inNouts: [],
       textButton: "Fazer login",
       nHoras: 7,
@@ -40,32 +44,69 @@ export default class Main extends Component {
       totalDuration: 90000,
       timerReset: false,
       stopwatchReset: false,
+      registros: [
+        {
+          data: [
+            "Entrada:11:48:20",
+          ]
+        },
+        {
+          data: [
+            "Saída: 11:48:20",
+          ]
+        },
+        {
+          data: [
+            "Entrada: 11:48:20",
+          ]
+        },
+        {
+          data: [
+            "Saída: 11:48:20",
+          ]
+        },
+        {
+          data: [
+            "Entrada: 11:48:20",
+          ]
+        },
+        {
+          data: [
+            "Saída: 11:48:20", 
+          ]
+        },
+      ],
     };
-    this.toggleTimer = this.toggleTimer.bind(this);
-    this.resetTimer = this.resetTimer.bind(this);
-    this.toggleStopwatch = this.toggleStopwatch.bind(this);
-    this.resetStopwatch = this.resetStopwatch.bind(this);
   }
 
-  toggleTimer() {
-    this.setState({ timerStart: !this.state.timerStart, timerReset: false });
-  }
+  /**
+   * Repensar esta
+   */
+  getFormatedTime = (timeInSecs) => {
+    var horas = timeInSecs / (60 * 60);
+    var minutos = timeInSecs / (60 * horas);
+    var segundos = timeInSecs / (horas * minutos);
 
-  resetTimer() {
-    this.setState({ timerStart: false, timerReset: true });
-  }
+    // supondo aqui que não é possivel trabalhar mais que 9:59:59 (i.e. dois ´digitos na hora)
+    var timeString = "";
+    if(horas < 1){
+      timeString = '0';
+    }else{
+      timeString = horas;
+    }
+    if(minutos < 1){
+      timeString = timeString + ':0';
+    }else {
+      timeString = timeString + ':' + minutos
+    }
+    if(segundos < 1){
+      timeString = timeString + ':0';
+    }else {
+      timeString = timeString + ':' + segundos
+    }
 
-  toggleStopwatch() {
-    this.setState({ stopwatchStart: !this.state.stopwatchStart, stopwatchReset: false });
+    return timeString;
   }
-
-  resetStopwatch() {
-    this.setState({ stopwatchStart: false, stopwatchReset: true });
-  }
-
-  getFormattedTime(time) {
-    this.currentTime = time;
-  };
 
   /**
    * 
@@ -80,87 +121,135 @@ export default class Main extends Component {
      */
 
   setTextButton = () => {
+
+    if (this.state.isRegister) {
+      this.setState({ isRegister: false, textButton: "Fazer logout" })
+    }
     this.state.isRegister
       ? this.setState({ isRegister: false, textButton: "Fazer logout" })
       : this.setState({ isRegister: true, textButton: "Fazer login" });
 
     // fazer login / logout tbm
-  }
+  } 
 
   componentDidMount() {
     //const {currentUser} = global.firebase.auth()
 
   }
-
+ 
   click() {
     return this.state.isRegister ? new Registro("in ") : new Registro("out ");
   }
-
+ 
   render() {
     const { currentUser } = this.state;
     //console.log(global.firebase.auth())
 
     return (
-      <View style={styles.container}>
+      <View style={Styles.container.container}>
 
-        <View style={styles.mainContainer}>
+        <LinearGradient
+          colors={['#4c669f', '#3b5998', '#192f6a']}
+          style={styles.mainContainer}> 
+          {/** Menu Icon */}
+          <Ionicons
+            onPress={() => { this.props.navigation.openDrawer(); }}
+            style={{
+              justifyContent: 'flex-start',
+              backgroundColor: 'rgba(255,255,255,0)',
+              alignItems: 'flex-start',
+              alignSelf: "flex-start",
+              marginHorizontal: 10
+            }}
+            name="ios-menu" size={32} color="#fefefe"
+          />
+
+
           {/** quando o firebase estiver configurado, alterar 
             <Image style={styles.icon} resizeMode="contain" source={this.state.currentUser.profilePic}/>
           */}
-          <Image style={styles.icon} resizeMode="contain" source={require("../../assets/logo.png")} />
+          <Image
+            style={{
+              width: 140, height: 140, borderRadius: 140 / 2, borderColor: 'white', borderWidth: 1, margin: 10
+            }} 
+            source={require("../../assets/person.jpg")}
+          />
 
-          <Text style={styles.titulo1White}> Victor Silva</Text>
+          <Text style={styles.titulo1White}> Terry Crews</Text>
           <Text style={styles.titulo2White}> Analista de Sistemas</Text>
 
-          <View style={[styles.container, { flexDirection: "row" }]}>
-            <View style={{ flexDirection: "column" , alignItems: "center"}}>
-                <Stopwatch laps msecs={false} start={this.state.timerStart}
-                  reset={this.state.timerReset}
-                  options={options}
-                  getTime={this.getFormattedTime} />
-              
+          <View style={[{ flexDirection: "row" , flex: 1, alignItems: "center", marginTop: 0}]}>
+            <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
+              <Text style={styles.numeroDestaqueWhite}>
+                05:28:44
+              </Text> 
+
               <Text style={styles.titulo2White}> Horas Trabalhadas </Text>
             </View>
 
 
-            <View style={{ flexDirection: "column" , alignItems: "center"}}>
-                <Timer totalDuration={this.state.totalDuration} msecs={false} start={this.state.timerStart}
-                  reset={this.state.timerReset}
-                  options={options}
-                  handleFinish={handleTimerComplete}
-                  getTime={this.getFormattedTime} />
-              
+            <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
+              <Text style={styles.numeroDestaqueWhite}>
+                05:28:44
+              </Text>
               <Text style={styles.titulo2White}> Tempo Restante </Text>
             </View>
           </View>
 
-        </View>
+        </LinearGradient>
 
-        {/** TIMER */}
-        <View style={{ margin: 10 }}>
+        <View style={{ padding: 10 }}>
           <View>
-            
-            <View style={{ flexDirection: 'row' }}>
-              <TouchableHighlight onPress={this.toggleTimer}>
-                <Text style={{ fontSize: 20, paddingHorizontal: 10, marginHorizontal: 10 }}>{!this.state.timerStart ? "Start" : "Stop"}</Text>
-              </TouchableHighlight>
-
-              <TouchableHighlight onPress={this.resetTimer}>
-                <Text style={{ fontSize: 20 }}>Reset</Text>
-              </TouchableHighlight>
-            </View>
-
+            <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: 18, color: Styles.color.cinza, padding: 8}}>
+              Registros do dia
+            </Text>
           </View>
-        </View>
 
-        {/** Botao de fazer check-in */}
-        <TouchableOpacity
-          onPress={this.setTextButton}
-          style={styles.buttonView}
-          activeOpacity={0.6}
-        >
-          <Text style={styles.textButton}>{this.state.textButton}</Text>
-        </TouchableOpacity>
+
+
+          
+          {/** SECTION List Com os registros do funcionario */}
+
+          <ScrollView style={{height: h(20)}}>
+
+            <SectionList
+              contentContainerStyle={{
+                alignItems: "flex-start"
+              }}
+              style=
+              {{
+                marginTop: 0,
+                paddingHorizontal: 15,
+                marginBottom: 15,
+              }}
+              renderItem={
+                ({ item, index, section }) =>
+                  (<Text
+                    style={{fontSize: 18, color: Styles.color.cinzaClaro, marginHorizontal: 20}} key={index}>
+                    {item}
+                  </Text>)
+              }
+              renderSectionHeader={
+                ({ section: { title } }) => (
+                  <Text
+                    style={{}}>{title}
+                  </Text>
+                )
+              }
+              sections={this.state.registros}
+              keyExtractor={(item, index) => item + index}
+            />
+          </ScrollView>
+
+          {/** Botao de fazer check-in */}
+          <TouchableOpacity
+            onPress={this.setTextButton}
+            style={styles.buttonView}
+            activeOpacity={0.6}
+          >
+            <Text style={styles.textButton}>{this.state.textButton}</Text>
+          </TouchableOpacity>
+        </View>
 
       </View>
     )
@@ -178,8 +267,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: w(100),
     height: h(55),
-    padding: 20,
     marginTop: 0,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
   },
   icon: {
     width: w(25),
@@ -201,7 +291,8 @@ const styles = StyleSheet.create({
   },
   numeroDestaqueWhite: {
     color: "#fffffe",
-    fontSize: h(10),
+    fontSize: 35,
+
 
   },
   buttonView: {
@@ -209,10 +300,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: w(2),
     backgroundColor: '#888',
     borderRadius: w(10),
-    padding: h(3),
+    padding: h(1.5),
+    marginVertical: h(3),
   },
   textButton: {
     color: 'white',
@@ -227,7 +318,6 @@ const handleTimerComplete = () => alert("custom completion function");
 
 const options = {
   container: {
-    backgroundColor: '#252525',
     padding: 5,
     borderRadius: 5,
   },
