@@ -42,38 +42,7 @@ export default class Main extends Component {
         id: '123', // id do cracha 
         chDiaria: 8,
         chMensal: 44,
-        registros: [
-          {
-            data: [
-              "Entrada: 11:48:20",
-            ]
-          },
-          {
-            data: [
-              "Saída: 11:48:20",
-            ]
-          },
-          {
-            data: [
-              "Entrada: 11:48:20",
-            ]
-          },
-          {
-            data: [
-              "Saída: 11:48:20",
-            ]
-          },
-          {
-            data: [
-              "Entrada: 11:48:20",
-            ]
-          },
-          {
-            data: [
-              "Saída: 11:48:20",
-            ]
-          },
-        ],
+        registros: [],
       },
       horas: 0,
       minutos: 0,
@@ -88,7 +57,6 @@ export default class Main extends Component {
       totalDuration: 90000,
       timerReset: false,
       stopwatchReset: false,
-
     };
 
   }
@@ -141,20 +109,38 @@ export default class Main extends Component {
      */
 
   setTextButton = () => {
-
+    
     if (this.state.isRegister) {
-      this.setState({ isRegister: false, textButton: "Fazer logout" })
-    }
-    this.state.isRegister
-      ? this.setState({ isRegister: false, textButton: "Fazer logout" })
-      : this.setState({ isRegister: true, textButton: "Fazer login" });
+      // setando o intervalo
+      this.countdown = setInterval(this.timer, 1000);
 
+      var today = new Date();
+      var u = this.state.user; 
+
+      u.registros.push({
+        data: ["Entrada: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
+      })
+      this.setState({user: u, isRegister: false, textButton: "Fazer logout" })
+    }else{ 
+      // parando o intervalo...
+      clearInterval(this.countdown)
+
+      var today = new Date();
+      var u = this.state.user; 
+
+      u.registros.push({
+        data: ["Saída: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
+      })
+
+      this.setState({user: u, isRegister: true, textButton: "Fazer login" })
+    }
+    
     // fazer login / logout tbm
   }
 
   componentDidMount() {
     //const {currentUser} = global.firebase.auth()
-    this.countdown = setInterval(this.timer, 1000);
+    //this.countdown = setInterval(this.timer, 1000);
     this.setState({
       horas: this.state.user.chDiaria,
       minutos: 0,
@@ -335,7 +321,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#888',
+    backgroundColor: '#5f5f5f',
     borderRadius: w(10),
     padding: h(1.5),
     marginVertical: h(3),
