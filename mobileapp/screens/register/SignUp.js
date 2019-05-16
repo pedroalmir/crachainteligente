@@ -1,16 +1,19 @@
 import React, { Component } from 'react'
 
 import PropTypes from 'prop-types';
-import {View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import {w, h, totalSize} from '../../api/Dimensions';
+import { View, Image, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { w, h, totalSize } from '../../api/Dimensions';
 import InputField from '../../components/InputField';
 import Continue from './Continue';
 import MyFirebase from "../../api/MyFirebase";
+import { LinearGradient } from 'expo';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const email = require('../../assets/email.png');
 const password = require('../../assets/password.png');
 const repeat = require('../../assets/repeat.png');
 const person = require('../../assets/person.png');
+const companyLogo = require('../../assets/logo.png');
 
 export default class SignUp extends Component {
 
@@ -34,7 +37,7 @@ export default class SignUp extends Component {
       isPasswordCorrect: password === '',
       isRepeatCorrect: repeat === '' || repeat !== password,
     }, () => {
-      if(name !== '' && email !== '' && password !== '' && (repeat !== '' && repeat === password)){
+      if (name !== '' && email !== '' && password !== '' && (repeat !== '' && repeat === password)) {
         this.createFireBaseAccount(name, email, password);
       } else {
         console.warn('Fill up all fields correctly');
@@ -64,64 +67,74 @@ export default class SignUp extends Component {
         this.password.input.focus();
         break;
       case 'Password':
-        this.setState({ isPasswordCorrect: this.password.getInputValue() === '',
+        this.setState({
+          isPasswordCorrect: this.password.getInputValue() === '',
           isRepeatCorrect: (this.repeat.getInputValue() !== ''
-            && this.repeat.getInputValue() !== this.password.getInputValue()) });
+            && this.repeat.getInputValue() !== this.password.getInputValue())
+        });
         this.repeat.input.focus();
         break;
       default:
-        this.setState({ isRepeatCorrect: (this.repeat.getInputValue() === ''
-            || this.repeat.getInputValue() !== this.password.getInputValue()) });
+        this.setState({
+          isRepeatCorrect: (this.repeat.getInputValue() === ''
+            || this.repeat.getInputValue() !== this.password.getInputValue())
+        });
     }
   };
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.create}>CREATE ACCOUNT</Text>
-        <InputField
-          placeholder="Name"
-          autoCapitalize="words"
-          error={this.state.isNameCorrect}
-          style={styles.input}
-          focus={this.changeInputFocus}
-          ref={ref => this.name = ref}
-          icon={person}
-        />
-        <InputField
-          placeholder="Email"
-          keyboardType="email-address"
-          error={this.state.isEmailCorrect}
-          style={styles.input}
-          focus={this.changeInputFocus}
-          ref={ref => this.email = ref}
-          icon={email}
-        />
-        <InputField
-          placeholder="Password"
-          error={this.state.isPasswordCorrect}
-          style={styles.input}
-          focus={this.changeInputFocus}
-          ref={ref => this.password = ref}
-          secureTextEntry={true}
-          icon={password}
-        />
-        <InputField
-          placeholder="Repeat Password"
-          error={this.state.isRepeatCorrect}
-          style={styles.input}
-          secureTextEntry={true}
-          returnKeyType="done"
-          blurOnSubmit={true}
-          focus={this.changeInputFocus}
-          ref={ref => this.repeat = ref}
-          icon={repeat}
-        />
-        <Continue isCreating={this.state.isCreatingAccount} click={this.createUserAccount}/>
-        <TouchableOpacity onPress={this.props.change('login')} style={styles.touchable}>
-          <Text style={styles.signIn}>{'<'} Sign In</Text>
-        </TouchableOpacity>
-      </View>
+      <ScrollView contentContainerStyle={styles.container} style={{padding: 0, flex:1, width: w(100), height:h(100)}}>
+        <LinearGradient
+          colors={['#192f6a', '#3b5998', '#4c669f']}
+          style={{ width: "100%", alignItems: "center", marginBottom: h(3) }}>
+          <Image style={styles.icon} resizeMode="contain" source={companyLogo} />
+          <Text style={styles.create}>Cadastrar Nova Conta</Text>
+        </LinearGradient>
+
+          <InputField
+            placeholder="Name"
+            autoCapitalize="words"
+            error={this.state.isNameCorrect}
+            style={styles.input}
+            focus={this.changeInputFocus}
+            ref={ref => this.name = ref}
+            icon={person}
+          />
+          <InputField
+            placeholder="Email"
+            keyboardType="email-address"
+            error={this.state.isEmailCorrect}
+            style={styles.input}
+            focus={this.changeInputFocus}
+            ref={ref => this.email = ref}
+            icon={email}
+          />
+          <InputField
+            placeholder="Password"
+            error={this.state.isPasswordCorrect}
+            style={styles.input}
+            focus={this.changeInputFocus}
+            ref={ref => this.password = ref}
+            secureTextEntry={true}
+            icon={password}
+          />
+          <InputField
+            placeholder="Repeat Password"
+            error={this.state.isRepeatCorrect}
+            style={styles.input}
+            secureTextEntry={true}
+            returnKeyType="done"
+            blurOnSubmit={true}
+            focus={this.changeInputFocus}
+            ref={ref => this.repeat = ref}
+            icon={repeat}
+          />
+          <Continue isCreating={this.state.isCreatingAccount} click={this.createUserAccount} />
+          <TouchableOpacity onPress={this.props.change('login')} style={styles.touchable}>
+            <Text style={styles.signIn}>{'<'} Fazer Login</Text>
+          </TouchableOpacity>
+        </ScrollView>
     )
   }
 }
@@ -132,21 +145,25 @@ SignUp.propTypes = {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  icon: {
+    width: w(70),
+    height: h(30),
+    marginTop: h(10),
+  },
   create: {
-    color:'white',
+    color: '#ffffee',
     fontSize: totalSize(2.4),
-    marginTop: h(7),
-    marginBottom: h(4),
+    marginBottom: h(5),
     fontWeight: '700',
   },
   signIn: {
-    color:'#ffffffEE',
+    color: '#5f5f5f',
     fontSize: totalSize(2),
     fontWeight: '700',
+    marginBottom: h(7)
   },
   touchable: {
     alignSelf: 'flex-start',
@@ -154,6 +171,8 @@ const styles = StyleSheet.create({
     marginTop: h(4),
   },
   input: {
-    marginVertical: h(2),
+    marginVertical: h(1.4),
+    backgroundColor: '#e3e3e3',
+    width: w(80),
   }
 });

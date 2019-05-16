@@ -13,7 +13,7 @@ export default class GetStarted extends Component {
       >
         {this.props.isLogin
           ? <ActivityIndicator size="large" style={styles.spinner} color='white' />
-          : <Text style={styles.text}>GET STARTED</Text>}
+          : <Text style={styles.text}>FAZER LOGIN</Text>}
       </TouchableOpacity>
     );
   }
@@ -31,12 +31,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: w(2),
-    backgroundColor: '#5f5f5f',
+    backgroundColor: 'white',
+    borderColor: '#e3e3e3',
+    borderWidth: 1,
     borderRadius: w(10),
-    marginTop: h(8),
+    marginTop: h(5),
   },
   text: {
-    color: 'white',
+    color: '#847e7d',
     fontWeight: '700',
     paddingVertical: h(1),
     fontSize: totalSize(2.1),

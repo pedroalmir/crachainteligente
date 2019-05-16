@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     padding: 15,
     color: 'rgba(10,10,10, 1)',
     textAlign: 'left',
-    borderColor: 'rgba(96,100,109, 0.5)',
+    borderColor: '#e3e3e3',
     borderBottomWidth: 1,
     borderTopWidth: 1,
     width: Styles.widthScreen,

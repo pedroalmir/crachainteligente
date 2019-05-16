@@ -81,6 +81,7 @@ export default class Login extends Component {
         <InputField
           placeholder="Password"
           returnKeyType="done"
+          style={styles.email}
           secureTextEntry={true}
           blurOnSubmit={true}
           error={this.state.isPasswordCorrect}
@@ -129,7 +130,8 @@ const styles = StyleSheet.create({
     marginTop: h(5),
   },
   email: {
-    marginBottom: h(4.5),
+    marginVertical: h(1.4),
+    backgroundColor: '#e3e3e3',
   },
   touchable: {
     flex: 1,

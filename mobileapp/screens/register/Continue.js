@@ -12,7 +12,7 @@ export default class Continue extends Component {
         style={styles.button}>
         {this.props.isCreating
         ? <ActivityIndicator size="large" style={styles.spinner} color='white' />
-        : <Text style={styles.text}>Continue</Text>}
+        : <Text style={styles.text}>Criar Conta</Text>}
       </TouchableOpacity>
     );
   }
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     height: h(5),
   },
   text: {
-    color: 'white',
+    color: '#5f5f5f',
     fontWeight: '600',
     paddingVertical: h(1),
     fontSize: totalSize(2.2),

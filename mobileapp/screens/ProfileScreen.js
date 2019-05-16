@@ -17,73 +17,8 @@ export default class ProfileScreen extends Component {
         this.state = {
             currentUser: null,
             isRegister: true,
-            inNouts: [],
-            textButton: "Fazer login",
-            nHoras: 7,
-            nMinutos: 30,
-            timerStart: false,
-            stopwatchStart: false,
-            totalDuration: 90000,
-            timerReset: false,
-            stopwatchReset: false,
-            registros: [
-                {
-                    title: 'Nome',
-                    data: [
-                        "Terry Crews",
-                    ]
-                },
-                {
-                    title: 'Cargo',
-                    data: [
-                        "Analista de Sistemas",
-                    ]
-                },
-                {
-                    title: 'Email',
-                    data: [
-                        "Terry.Crews@great.ufc.br",
-                    ]
-                },
-                {
-                    title: 'Carga Horária Diária',
-                    data: [
-                        "8:00:00",
-                    ]
-                },
-                {
-                    title: 'Carga Horária Mensal',
-                    data: [
-                        "44:00:00",
-                    ]
-                },
-            ],
         };
-        this.toggleTimer = this.toggleTimer.bind(this);
-        this.resetTimer = this.resetTimer.bind(this);
-        this.toggleStopwatch = this.toggleStopwatch.bind(this);
-        this.resetStopwatch = this.resetStopwatch.bind(this);
     }
-
-    toggleTimer() {
-        this.setState({ timerStart: !this.state.timerStart, timerReset: false });
-    }
-
-    resetTimer() {
-        this.setState({ timerStart: false, timerReset: true });
-    }
-
-    toggleStopwatch() {
-        this.setState({ stopwatchStart: !this.state.stopwatchStart, stopwatchReset: false });
-    }
-
-    resetStopwatch() {
-        this.setState({ stopwatchStart: false, stopwatchReset: true });
-    }
-
-    getFormattedTime(time) {
-        this.currentTime = time;
-    };
 
     /**
      * 
@@ -97,25 +32,9 @@ export default class ProfileScreen extends Component {
       }
        */
 
-    setTextButton = () => {
-
-        if (this.state.isRegister) {
-            this.setState({ isRegister: false, textButton: "Fazer logout" })
-        }
-        this.state.isRegister
-            ? this.setState({ isRegister: false, textButton: "Fazer logout" })
-            : this.setState({ isRegister: true, textButton: "Fazer login" });
-
-        // fazer login / logout tbm
-    }
-
     componentDidMount() {
         //const {currentUser} = global.firebase.auth()
 
-    }
-
-    click() {
-        return this.state.isRegister ? new Registro("in ") : new Registro("out ");
     }
 
     render() {
@@ -141,14 +60,14 @@ export default class ProfileScreen extends Component {
                         name="ios-menu" size={32} color="#fefefe"
                     />
 
-
-                    {/** quando o firebase estiver configurado, alterar 
-            <Image style={styles.icon} resizeMode="contain" source={this.state.currentUser.profilePic}/>
-          */}
-                    <Image
-                        style={{
-                            width: 140, height: 140, borderRadius: 140 / 2, borderColor: 'white', borderWidth: 1, margin: 10
-                        }}
+                    <Image style={{
+                        width: 140,
+                        height: 140,
+                        borderRadius: 140 / 2,
+                        borderColor: 'white',
+                        borderWidth: 1,
+                        margin: 10
+                    }}
                         source={require("../assets/person.jpg")}
                     />
 
@@ -161,48 +80,33 @@ export default class ProfileScreen extends Component {
 
                     {/** SECTION List Com os registros do funcionario */}
 
-                    <ScrollView style={{ height: h(55) }}>
+                    <ScrollView style={{
+                        height: h(55), marginTop: 0,
+                        paddingHorizontal: 15,
+                        marginBottom: 15,
+                    }}>
 
-                        <SectionList
-                            contentContainerStyle={{
-                                alignItems: "flex-start"
-                            }}
-                            style=
-                            {{
-                                marginTop: 0,
-                                paddingHorizontal: 15,
-                                marginBottom: 15,
-                            }}
-                            renderItem={
-                                ({ item, index, section }) =>
-                                    (<Text
-                                        style={{
-                                            fontSize: 18,
-                                            color: Styles.color.cinza,
-                                            marginHorizontal: 0,
-                                            borderBottomWidth: 1,
-                                            borderBottomColor: Styles.color.cinzaClaro,
-                                        }} key={index}>
-                                        {item}
-                                    </Text>)
-                            }
-                            renderSectionHeader={
-                                ({ section: { title } }) => (
-                                    <Text
-                                        style={{
-                                            fontSize: 18,
-                                            color: Styles.color.cinzaClaro,
-                                            padding: 5,
+                        <View style={{
+                            fontSize: 18,
+                            color: Styles.color.cinzaClaro,
+                            padding: 5,
 
-                                            width: Styles.Constants.baseWidth,
-                                        }}>
-                                        {title}
-                                    </Text>
-                                )
-                            }
-                            sections={this.state.registros}
-                            keyExtractor={(item, index) => item + index}
-                        />
+                            width: Styles.Constants.baseWidth,
+                        }}>
+                            <Text>
+                                Email
+                            </Text>
+                        </View>
+                        {/** Input */}
+
+                        <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
+                            <Text
+                                style={{ fontSize: 18, color: Styles.color.cinza, marginHorizontal: 20 }}>
+                                terry.crews@great.ufc.br
+                            </Text>
+                        </View>
+
+
                     </ScrollView>
 
 

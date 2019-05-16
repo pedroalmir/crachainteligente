@@ -8,8 +8,9 @@ const colors = {
      verdeMusgo : "#135b33",
      verdeFolha : "#218a50",
      branco : '#fdfeff',
-     cinza : 'rgba(96,100,109, 1)',
-     cinzaClaro : '#73707070',
+     cinza : '#777777',
+     cinzaClaro : '#e3e3e3',
+     cinzaEscuro: '#232323',
      rubro: "#5b1313",
      main: "232323",
      secondary: "2f2f2f"

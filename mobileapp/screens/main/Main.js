@@ -50,13 +50,7 @@ export default class Main extends Component {
       horasUp: 0,
       minutosUp: 0,
       segundosUp: 0,
-      inNouts: [],
       textButton: "Fazer login",
-      timerStart: false,
-      stopwatchStart: false,
-      totalDuration: 90000,
-      timerReset: false,
-      stopwatchReset: false,
     };
 
   }
@@ -72,32 +66,32 @@ export default class Main extends Component {
     const segundosUp = 0;
     var minutos = minutos - 1;
     var horas = this.state.horas;
-    var horasUp = this.state.horasUp; 
-    if(horas !== this.state.user.chDiaria)
+    var horasUp = this.state.horasUp;
+    if (horas !== this.state.user.chDiaria)
       var minutosUp = minutosUp + 1;
-    
-    
+
+
     // sera que acabou uma hora?
     if (minutos < 0) {
       horas = horas - 1;
       minutos = 59;
     }
 
-    if(minutosUp > 59){
+    if (minutosUp > 59) {
       horasUp = horasUp + 1;
       minutosUp = 0;
     }
 
     // será que acabou o expediente? 
-    if(this.state.horas < 0){
+    if (this.state.horas < 0) {
       clearInterval(this.countdown);
     }
 
     this.setState({ horas: horas, minutos: minutos, segundos: segundos, horasUp: horasUp, minutosUp: minutosUp, segundosUp: segundosUp })
   }
 
-  /**
-   * 
+  /*
+   
    logout(){
      global.firebase.auth().signOut().then(function() {
        // Sign-out successful.
@@ -108,39 +102,42 @@ export default class Main extends Component {
     }
      */
 
+  /**
+   * Callback for When the login / logout button is pressed
+   */
   setTextButton = () => {
-    
+
     if (this.state.isRegister) {
       // setando o intervalo
       this.countdown = setInterval(this.timer, 1000);
 
       var today = new Date();
-      var u = this.state.user; 
+      var u = this.state.user;
 
       u.registros.push({
         data: ["Entrada: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
       })
-      this.setState({user: u, isRegister: false, textButton: "Fazer logout" })
-    }else{ 
+      this.setState({ user: u, isRegister: false, textButton: "Fazer logout" })
+    } else {
       // parando o intervalo...
       clearInterval(this.countdown)
 
       var today = new Date();
-      var u = this.state.user; 
+      var u = this.state.user;
 
       u.registros.push({
         data: ["Saída: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
       })
 
-      this.setState({user: u, isRegister: true, textButton: "Fazer login" })
+      this.setState({ user: u, isRegister: true, textButton: "Fazer login" })
     }
-    
+
     // fazer login / logout tbm
   }
 
   componentDidMount() {
     //const {currentUser} = global.firebase.auth()
-    //this.countdown = setInterval(this.timer, 1000);
+
     this.setState({
       horas: this.state.user.chDiaria,
       minutos: 0,
@@ -149,17 +146,16 @@ export default class Main extends Component {
     })
   }
 
+  /**
+   * Callback checking every second if the zero second was reached. If true, reformat the time
+   */
   timer = () => {
     var s = this.state.segundos;
-    if(s <= 0){
+    if (s <= 0) {
       this.reformatTimer();
-    }else{
-      this.setState({ segundos: this.state.segundos - 1, segundosUp: this.state.segundosUp + 1,});
+    } else {
+      this.setState({ segundos: this.state.segundos - 1, segundosUp: this.state.segundosUp + 1, });
     }
-  }
-
-  click() {
-    return this.state.isRegister ? new Registro("in ") : new Registro("out ");
   }
 
   render() {
@@ -185,10 +181,6 @@ export default class Main extends Component {
             name="ios-menu" size={32} color="#fefefe"
           />
 
-
-          {/** quando o firebase estiver configurado, alterar 
-            <Image style={styles.icon} resizeMode="contain" source={this.state.currentUser.profilePic}/>
-          */}
           <Image
             style={{
               width: 140, height: 140, borderRadius: 140 / 2, borderColor: 'white', borderWidth: 1, margin: 10
@@ -231,6 +223,9 @@ export default class Main extends Component {
 
           {/** SECTION List Com os registros do funcionario */}
 
+
+
+
           <ScrollView style={{ height: h(20) }}>
 
             <SectionList
@@ -245,15 +240,19 @@ export default class Main extends Component {
               }}
               renderItem={
                 ({ item, index, section }) =>
-                  (<Text
-                    style={{ fontSize: 18, color: Styles.color.cinzaClaro, marginHorizontal: 20 }} key={index}>
-                    {item}
-                  </Text>)
+                  (
+                    <View style={{width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1}}>
+                      <Text
+                        style={{ fontSize: 18, color: Styles.color.cinza, marginHorizontal: 20 }} key={index}>
+                        {item}
+                      </Text>
+                    </View>
+                  )
               }
               renderSectionHeader={
                 ({ section: { title } }) => (
                   <Text
-                    style={{}}>{title}
+                    style={{color: Styles.color.cinzaEscuro, fontWeight: '800'}}>{title}
                   </Text>
                 )
               }
