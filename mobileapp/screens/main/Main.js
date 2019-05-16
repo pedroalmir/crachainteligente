@@ -34,78 +34,98 @@ export default class Main extends Component {
     this.state = {
       currentUser: null,
       isRegister: true,
-      horas: 8*60*60,
+      user: {
+        email: "terry.crews@great.ufc.br",
+        pic: require("../../assets/person.jpg"),
+        cargo: "Analista de Sistemas",
+        nome: "Terry Crews",
+        id: '123', // id do cracha 
+        chDiaria: 8,
+        chMensal: 44,
+        registros: [
+          {
+            data: [
+              "Entrada: 11:48:20",
+            ]
+          },
+          {
+            data: [
+              "Saída: 11:48:20",
+            ]
+          },
+          {
+            data: [
+              "Entrada: 11:48:20",
+            ]
+          },
+          {
+            data: [
+              "Saída: 11:48:20",
+            ]
+          },
+          {
+            data: [
+              "Entrada: 11:48:20",
+            ]
+          },
+          {
+            data: [
+              "Saída: 11:48:20",
+            ]
+          },
+        ],
+      },
+      horas: 0,
+      minutos: 0,
+      segundos: 0,
+      horasUp: 0,
+      minutosUp: 0,
+      segundosUp: 0,
       inNouts: [],
       textButton: "Fazer login",
-      nHoras: 7,
-      nMinutos: 30,
       timerStart: false,
       stopwatchStart: false,
       totalDuration: 90000,
       timerReset: false,
       stopwatchReset: false,
-      registros: [
-        {
-          data: [
-            "Entrada:11:48:20",
-          ]
-        },
-        {
-          data: [
-            "Saída: 11:48:20",
-          ]
-        },
-        {
-          data: [
-            "Entrada: 11:48:20",
-          ]
-        },
-        {
-          data: [
-            "Saída: 11:48:20",
-          ]
-        },
-        {
-          data: [
-            "Entrada: 11:48:20",
-          ]
-        },
-        {
-          data: [
-            "Saída: 11:48:20", 
-          ]
-        },
-      ],
+
     };
+
   }
 
   /**
-   * Repensar esta
+   * Supondo que o segundo é <= 1
    */
-  getFormatedTime = (timeInSecs) => {
-    var horas = timeInSecs / (60 * 60);
-    var minutos = timeInSecs / (60 * horas);
-    var segundos = timeInSecs / (horas * minutos);
 
-    // supondo aqui que não é possivel trabalhar mais que 9:59:59 (i.e. dois ´digitos na hora)
-    var timeString = "";
-    if(horas < 1){
-      timeString = '0';
-    }else{
-      timeString = horas;
-    }
-    if(minutos < 1){
-      timeString = timeString + ':0';
-    }else {
-      timeString = timeString + ':' + minutos
-    }
-    if(segundos < 1){
-      timeString = timeString + ':0';
-    }else {
-      timeString = timeString + ':' + segundos
+  reformatTimer = () => {
+    var minutos = this.state.minutos;
+    var minutosUp = this.state.minutosUp;
+    const segundos = 59;
+    const segundosUp = 0;
+    var minutos = minutos - 1;
+    var horas = this.state.horas;
+    var horasUp = this.state.horasUp; 
+    if(horas !== this.state.user.chDiaria)
+      var minutosUp = minutosUp + 1;
+    
+    
+    // sera que acabou uma hora?
+    if (minutos < 0) {
+      horas = horas - 1;
+      minutos = 59;
     }
 
-    return timeString;
+    if(minutosUp > 59){
+      horasUp = horasUp + 1;
+      minutosUp = 0;
+    }
+
+    // será que acabou o expediente? 
+    if(this.state.horas < 0){
+      clearInterval(this.countdown);
+    }
+
+    this.setState({ horas: horas, minutos: minutos, segundos: segundos, horasUp: horasUp, minutosUp: minutosUp, segundosUp: segundosUp })
   }
 
   /**
@@ -130,17 +150,32 @@ export default class Main extends Component {
       : this.setState({ isRegister: true, textButton: "Fazer login" });
 
     // fazer login / logout tbm
-  } 
+  }
 
   componentDidMount() {
     //const {currentUser} = global.firebase.auth()
-
+    this.countdown = setInterval(this.timer, 1000);
+    this.setState({
+      horas: this.state.user.chDiaria,
+      minutos: 0,
+      segundos: 0,
+      horasUp: 0, minutosUp: 0, segundosUp: 0
+    })
   }
- 
+
+  timer = () => {
+    var s = this.state.segundos;
+    if(s <= 0){
+      this.reformatTimer();
+    }else{
+      this.setState({ segundos: this.state.segundos - 1, segundosUp: this.state.segundosUp + 1,});
+    }
+  }
+
   click() {
     return this.state.isRegister ? new Registro("in ") : new Registro("out ");
   }
- 
+
   render() {
     const { currentUser } = this.state;
     //console.log(global.firebase.auth())
@@ -150,7 +185,7 @@ export default class Main extends Component {
 
         <LinearGradient
           colors={['#4c669f', '#3b5998', '#192f6a']}
-          style={styles.mainContainer}> 
+          style={styles.mainContainer}>
           {/** Menu Icon */}
           <Ionicons
             onPress={() => { this.props.navigation.openDrawer(); }}
@@ -171,18 +206,18 @@ export default class Main extends Component {
           <Image
             style={{
               width: 140, height: 140, borderRadius: 140 / 2, borderColor: 'white', borderWidth: 1, margin: 10
-            }} 
-            source={require("../../assets/person.jpg")}
+            }}
+            source={this.state.user.pic}
           />
 
-          <Text style={styles.titulo1White}> Terry Crews</Text>
-          <Text style={styles.titulo2White}> Analista de Sistemas</Text>
+          <Text style={styles.titulo1White}> {this.state.user.nome}</Text>
+          <Text style={styles.titulo2White}> {this.state.user.cargo}</Text>
 
-          <View style={[{ flexDirection: "row" , flex: 1, alignItems: "center", marginTop: 0}]}>
+          <View style={[{ flexDirection: "row", flex: 1, alignItems: "center", marginTop: 0 }]}>
             <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
               <Text style={styles.numeroDestaqueWhite}>
-                05:28:44
-              </Text> 
+                {this.state.horasUp <= 9 ? '0' + this.state.horasUp : this.state.horasUp}:{this.state.minutosUp <= 9 ? '0' + this.state.minutosUp : this.state.minutosUp}:{this.state.segundosUp <= 9 ? '0' + this.state.segundosUp : this.state.segundosUp}
+              </Text>
 
               <Text style={styles.titulo2White}> Horas Trabalhadas </Text>
             </View>
@@ -190,7 +225,7 @@ export default class Main extends Component {
 
             <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
               <Text style={styles.numeroDestaqueWhite}>
-                05:28:44
+                {this.state.horas <= 9 ? '0' + this.state.horas : this.state.horas}:{this.state.minutos <= 9 ? '0' + this.state.minutos : this.state.minutos}:{this.state.segundos <= 9 ? '0' + this.state.segundos : this.state.segundos}
               </Text>
               <Text style={styles.titulo2White}> Tempo Restante </Text>
             </View>
@@ -200,17 +235,17 @@ export default class Main extends Component {
 
         <View style={{ padding: 10 }}>
           <View>
-            <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: 18, color: Styles.color.cinza, padding: 8}}>
+            <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: 18, color: Styles.color.cinza, padding: 8 }}>
               Registros do dia
             </Text>
           </View>
 
 
 
-          
+
           {/** SECTION List Com os registros do funcionario */}
 
-          <ScrollView style={{height: h(20)}}>
+          <ScrollView style={{ height: h(20) }}>
 
             <SectionList
               contentContainerStyle={{
@@ -225,7 +260,7 @@ export default class Main extends Component {
               renderItem={
                 ({ item, index, section }) =>
                   (<Text
-                    style={{fontSize: 18, color: Styles.color.cinzaClaro, marginHorizontal: 20}} key={index}>
+                    style={{ fontSize: 18, color: Styles.color.cinzaClaro, marginHorizontal: 20 }} key={index}>
                     {item}
                   </Text>)
               }
@@ -236,7 +271,7 @@ export default class Main extends Component {
                   </Text>
                 )
               }
-              sections={this.state.registros}
+              sections={this.state.user.registros}
               keyExtractor={(item, index) => item + index}
             />
           </ScrollView>
