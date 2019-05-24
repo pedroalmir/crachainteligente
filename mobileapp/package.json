@@ -8,11 +8,16 @@
   },
   "dependencies": {
     "expo": "^32.0.0",
+    "expo-cli": "^2.15.3",
     "firebase": "^5.9.1",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-chart-kit": "^2.5.0",
     "react-native-firebase": "^5.2.3",
-    "react-navigation": "^3.5.1"
+    "react-native-simple-radio-button": "^2.7.3",
+    "react-native-stopwatch-timer": "0.0.20",
+    "react-native-timer-countdown": "^4.1.0",
+    "react-navigation": "^3.8.1"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0"

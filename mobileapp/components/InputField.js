@@ -18,7 +18,7 @@ export default class InputField extends Component {
         <TextInput
           style={styles.inputText}
           value={this.state.text}
-          selectionColor="white"
+          selectionColor="#847e7d"
           autoCapitalize={this.props.autoCapitalize}
           ref={ref => this.input = ref}
           autoCorrect={false}
@@ -29,7 +29,7 @@ export default class InputField extends Component {
           returnKeyType={this.props.returnKeyType}
           placeholder={this.props.placeholder}
           onSubmitEditing={this.props.focus(this.props.placeholder)}
-          placeholderTextColor="#ffffffDD"
+          placeholderTextColor="#847e7d"
           onChangeText={(text) => this.setState({ text })}
         />
         {this.props.error && <Image style={styles.iconError} source={close}/>}
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     borderColor: '#E57373',
   },
   inputText: {
-    color: 'white',
+    color: '#847e7d',
     flex: 1,
     fontSize: totalSize(2.1),
     marginLeft: w(3),

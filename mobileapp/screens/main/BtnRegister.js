@@ -3,7 +3,8 @@ import { StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-nat
 import PropTypes from 'prop-types';
 import {w, h, totalSize} from '../../api/Dimensions';
 
-export default class GetStarted extends Component {
+export default class BtnRegister extends Component {
+    
   render() {
     return (
       <TouchableOpacity
@@ -11,17 +12,15 @@ export default class GetStarted extends Component {
         style={styles.button}
         activeOpacity={0.6}
       >
-        {this.props.isLogin
-          ? <ActivityIndicator size="large" style={styles.spinner} color='white' />
-          : <Text style={styles.text}>FAZER LOGIN</Text>}
+        <Text style={styles.text}>{this.props.textButton}</Text>
       </TouchableOpacity>
     );
   }
 }
 
-GetStarted.propTypes = {
+BtnRegister.propTypes = {
   click: PropTypes.func.isRequired,
-  isLogin: PropTypes.bool.isRequired,
+  textButton: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -31,14 +30,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: w(2),
-    backgroundColor: 'white',
-    borderColor: '#e3e3e3',
-    borderWidth: 1,
+    backgroundColor: '#888',
     borderRadius: w(10),
-    marginTop: h(5),
+    marginTop: h(8),
   },
   text: {
-    color: '#847e7d',
+    color: 'white',
     fontWeight: '700',
     paddingVertical: h(1),
     fontSize: totalSize(2.1),

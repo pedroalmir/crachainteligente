@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, StyleSheet, ImageBackground } from 'react-native'
 
 import Login from './screens/login/Login';
 import SignUp from './screens/register/SignUp';
+import Main from './navigator/MainNavigator';
 import { w } from './api/Dimensions';
 
 export default class CrachaInteligente extends Component{
@@ -26,9 +27,13 @@ export default class CrachaInteligente extends Component{
       case 'login':
         screenToShow = <Login change={this.changeScreen} success={this.userSuccessfullyLoggedIn}/>;
         break;
+      case 'main':
+        screenToShow = <Main/>;
+        break;
       case 'register':
         screenToShow = <SignUp change={this.changeScreen} />;
         break;
+      
     }
 
     return (
@@ -54,7 +59,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#212b46ff',
+    backgroundColor: '#fffffe',
   },
   background: {
     width: '100%',
