@@ -61,9 +61,9 @@ export default class ProfileScreen extends Component {
                     />
 
                     <Image style={{
-                        width: 140,
-                        height: 140,
-                        borderRadius: 140 / 2,
+                        width: Styles.fWidth(140),
+                        height: Styles.fHeight(140),
+                        borderRadius: Styles.fWidth(140 / 2),
                         borderColor: 'white',
                         borderWidth: 1,
                         margin: 10

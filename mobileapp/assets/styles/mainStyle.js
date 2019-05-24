@@ -17,11 +17,25 @@ const colors = {
 }
 
 const Constants = {
+    statusbarMargin: StatusBar.currentHeight, 
     baseWidth: 360,
     baseHeight: 616,
     aspX: 1/360 * Dimensions.get("screen").width,
     aspY: 1/616 * Dimensions.get("screen").height,
-    statusbarMargin: StatusBar.currentHeight, 
+}
+
+/**
+ * Returns the modularized height h 
+ */
+uHeight = (h) => {
+    return h * Constants.aspY;
+}
+
+/**
+ * Returns the modularized Width h 
+ */
+uWidth = (w) => {
+    return w * Constants.aspX;
 }
 
 
@@ -279,4 +293,6 @@ const styleText = StyleSheet.create({
       widthScreen: Dimensions.get('screen').width,
       heightScreen: Dimensions.get('screen').height,
       Constants,
+      fHeight: uHeight,
+      fWidth: uWidth,
   }

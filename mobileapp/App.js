@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, StyleSheet, ImageBackground } from 'react-native'
 import Login from './screens/login/Login';
 import SignUp from './screens/register/SignUp';
 import Main from './navigator/MainNavigator';
-import { w } from './api/Dimensions';
+import { w } from './api/Dimensions'; 
 
 export default class CrachaInteligente extends Component{
   state = {

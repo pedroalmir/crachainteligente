@@ -11,18 +11,24 @@ import { LinearGradient } from 'expo';
 
 /**
  * currentUser : {
- *  nome: string,
- *  cargo: string, 
- *  profilePic: [PNG | JPG],
- *  cargaHorariaDiaria: float,
- *  registrosDia: array,
- *  registrosAll: array, 
+ *  info: {
+ *    nome: string,
+ *    cargo: string, 
+ *    profilePic: [PNG | JPG],
+ *    cargaHorariaDiaria: float,
+ *  }
+ *  register: {
+ *    
+ *  }, 
  * }
  * 
  * registro : {
  *  data,
  *  hora
  * }
+ * 
+ * PARA FAZER O TIMER RODAR EM BACKGROUND: https://github.com/ocetnik/react-native-background-timer
+ * Isso deve ser feito apenas por último, pois é necessário que o app seja ejetado no expo, o que é irreversível.
  */
 export default class Main extends Component {
   static navigationOptions = {
@@ -107,13 +113,15 @@ export default class Main extends Component {
    */
   setTextButton = () => {
 
+    // se estiver entrando
     if (this.state.isRegister) {
+      
       // setando o intervalo
       this.countdown = setInterval(this.timer, 1000);
-
       var today = new Date();
       var u = this.state.user;
 
+      // adicionando entrada
       u.registros.push({
         data: ["Entrada: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
       })
@@ -178,12 +186,12 @@ export default class Main extends Component {
               alignSelf: "flex-start",
               marginHorizontal: 10
             }}
-            name="ios-menu" size={32} color="#fefefe"
+            name="ios-menu" size={Styles.fWidth(32)} color="#fefefe"
           />
 
           <Image
             style={{
-              width: 140, height: 140, borderRadius: 140 / 2, borderColor: 'white', borderWidth: 1, margin: 10
+              width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth (140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
             }}
             source={this.state.user.pic}
           />
@@ -213,7 +221,7 @@ export default class Main extends Component {
 
         <View style={{ padding: 10 }}>
           <View>
-            <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: 18, color: Styles.color.cinza, padding: 8 }}>
+            <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: Styles.fWidth(18), color: Styles.color.cinza, padding: 8 }}>
               Registros do dia
             </Text>
           </View>
@@ -243,7 +251,7 @@ export default class Main extends Component {
                   (
                     <View style={{width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1}}>
                       <Text
-                        style={{ fontSize: 18, color: Styles.color.cinza, marginHorizontal: 20 }} key={index}>
+                        style={{ fontSize: Styles.fWidth(18), color: Styles.color.cinza, marginHorizontal: 20 }} key={index}>
                         {item}
                       </Text>
                     </View>
@@ -311,7 +319,7 @@ const styles = StyleSheet.create({
   },
   numeroDestaqueWhite: {
     color: "#fffffe",
-    fontSize: 35,
+    fontSize: Styles.fWidth(35),
 
 
   },
@@ -334,15 +342,13 @@ const styles = StyleSheet.create({
 })
 
 
-const handleTimerComplete = () => alert("custom completion function");
-
 const options = {
   container: {
     padding: 5,
     borderRadius: 5,
   },
   text: {
-    fontSize: 40,
+    fontSize: Styles.fWidth(40),
     color: '#FFF',
     marginLeft: 7,
   }
