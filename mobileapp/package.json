@@ -16,6 +16,7 @@
     "react-native-firebase": "^5.2.3",
     "react-native-simple-radio-button": "^2.7.3",
     "react-native-stopwatch-timer": "0.0.20",
+    "react-native-svg-charts": "^5.2.0",
     "react-native-timer-countdown": "^4.1.0",
     "react-navigation": "^3.8.1"
   },

@@ -10,9 +10,9 @@ import { w } from './api/Dimensions';
 export default class CrachaInteligente extends Component{
   state = {
     currentScreen: 'login', // can be: 'login' or 'register'. TODO: improve this!
-  };
+  }; 
 
-  changeScreen = screenName => () => {
+  changeScreen = screenName => () => { 
     this.setState({ currentScreen: screenName });
   };
 

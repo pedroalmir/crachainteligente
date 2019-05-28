@@ -8,7 +8,7 @@ import ProfileScreen from '../screens/ProfileScreen'
 const MainNavigator = createDrawerNavigator( 
   {
     Home: Main,
-    Relatórios : ReportScreen,
+    //Relatórios : ReportScreen,
     Perfil: ProfileScreen,
     Sobre: AboutScreen,
   }

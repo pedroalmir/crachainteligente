@@ -3,29 +3,12 @@ import React, { Component } from 'react'
 import { StyleSheet, SectionList, ScrollView, TouchableOpacity, TouchableHighlight, Platform, Image, Text, View } from 'react-native'
 
 import { w, h, totalSize } from '../../api/Dimensions';
-import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { Registro } from './Registro';
 import { Ionicons } from '@expo/vector-icons';
 import Styles from '../../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 
 /**
- * currentUser : {
- *  info: {
- *    nome: string,
- *    cargo: string, 
- *    profilePic: [PNG | JPG],
- *    cargaHorariaDiaria: float,
- *  }
- *  register: {
- *    
- *  }, 
- * }
- * 
- * registro : {
- *  data,
- *  hora
- * }
  * 
  * PARA FAZER O TIMER RODAR EM BACKGROUND: https://github.com/ocetnik/react-native-background-timer
  * Isso deve ser feito apenas por último, pois é necessário que o app seja ejetado no expo, o que é irreversível.
@@ -33,7 +16,7 @@ import { LinearGradient } from 'expo';
 export default class Main extends Component {
   static navigationOptions = {
     header: null,
-  };
+  }; 
 
   constructor(props) {
     super(props);
