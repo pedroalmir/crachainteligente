@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import Styles from '../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 
+import firebase from '../api/MyFirebase'
+
 /**
  * Precisa de uma função que recebe os registros e gera os meses em que ele trabalhou 
  *  ela tambem gera para cada mes um json com a carga horaria trabalhada por dia para cada dia
@@ -51,7 +53,21 @@ export default class ProfileScreen extends Component {
 
     componentDidMount() {
         //const {currentUser} = global.firebase.auth()
+        const user = firebase.getUser()
+        newUser = {
+            id: 1,
+            info: {
+                email: user.email,
+                pic: require("../assets/person.jpg"),
+                cargo: "Analista de Sistemas",
+                nome: user.displayName,
+                chDiaria: 8,
+                chMensal: 44,
+            },
+            registers: ["10/05/2019 17:20:15"],
+        }
 
+        this.setState({user:newUser})
     }
 
     render() {

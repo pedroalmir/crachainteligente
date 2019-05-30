@@ -37,7 +37,6 @@ export default class Login extends Component {
           25,
           50,
         );
-        //console.warn('Fill up all fields');
       }
     });
   };
@@ -58,7 +57,8 @@ export default class Login extends Component {
         this.setState({ isLogin: false });
 
         // indo para a main screen
-        this.props.change('main')();
+        this.props.change('main', user)();
+
       }).catch( err => {
         
         console.log("Não foi possivel fazer login: ", err);

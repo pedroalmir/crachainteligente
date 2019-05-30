@@ -8,6 +8,8 @@ import { Ionicons } from '@expo/vector-icons';
 import Styles from '../../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 
+import firebase from '../../api/MyFirebase'
+
 
 /**
  * 
@@ -129,13 +131,24 @@ export default class Main extends Component {
 
   componentDidMount() {
     
-    /**
-     * 
-     const {currentUser} = global.firebase.auth()
-     console.log(currentUser)
-   */
+     //const {currentUser} = firebase.userLogin("rubens@gmail.com", "rubens@gmail.com")
+     firebase.getUser();
+     const user = firebase.getUser()
+     console.log("DENTRO DA MAIN:",user.providerData[0])
+
+     const newUser = {
+      email: user.email,
+      pic: require("../../assets/person.jpg"),
+      cargo: "Analista de Sistemas",
+      nome: user.displayName,
+      id: '123', // id do cracha 
+      chDiaria: 8,
+      chMensal: 44,
+      registros: [],
+    }
 
     this.setState({
+      user: newUser, 
       horas: this.state.user.chDiaria,
       minutos: 0,
       segundos: 0,

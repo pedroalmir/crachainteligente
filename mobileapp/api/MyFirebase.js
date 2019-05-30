@@ -13,6 +13,10 @@ firebase.initializeApp(config);
 
 class MyFirebase {
 
+  getUser = () => {
+    return firebase.auth().currentUser
+  }
+
   userLogin = (email, password) => {
     return new Promise(resolve => {
       firebase.auth().signInWithEmailAndPassword(email, password)
@@ -31,7 +35,9 @@ class MyFirebase {
           resolve(null);
         }).then(user => {
         if (user) {
-          //console.log(user)
+          //nesse trecho temos acesso aos dados do usuario
+          //user2see = user.user.providerData[0]
+          //console.log(user2see)
           resolve(user);
         }
       });

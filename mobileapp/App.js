@@ -9,26 +9,32 @@ import { w } from './api/Dimensions';
 
 export default class CrachaInteligente extends Component {
   state = {
+    args: null, 
     currentScreen: 'login', // can be: 'login' or 'register'. TODO: improve this!
   };
 
-  changeScreen = screenName => () => {
-    this.setState({ currentScreen: screenName });
+  changeScreen = (screenName, args) => () => {
+    this.setState({ currentScreen: screenName, args: args });
   };
+
+  getUser = () => {
+    return this.state.args
+  }
 
   userSuccessfullyLoggedIn = (user) => {
     this.props.login(user);
   };
 
   render() {
-    let screenToShow;
+    let screenToShow; 
 
-    switch (this.state.currentScreen) {
+    switch (this.state.currentScreen) { 
       case 'login':
         screenToShow = <Login change={this.changeScreen} success={this.userSuccessfullyLoggedIn} />;
         break;
       case 'main':
-        screenToShow = <Main change={this.changeScreen} />;
+        
+        screenToShow = <Main />;
         break;
       case 'register':
         screenToShow = <SignUp change={this.changeScreen} />;
