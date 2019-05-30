@@ -16,10 +16,15 @@
 #include <WebServer.h>    // Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>  // WiFi Configuration Manager
 
+#include <ArduinoJson.h>  // ArduinoJson - arduinojson.org
+
 #define SS_PIN    21  // SDA pin of RFID
 #define RST_PIN   22  // reset pin of RFID
 #define LED_ACCESS_GRANTED  2
 #define LED_ACCESS_DENIED   12
+
+#define WIFI_SSID "CLARO_2GDB49CF"
+#define WIFI_PWD "9EDB49CF"
 
 #define FIREBASE_HOST "crachainteligence.firebaseio.com"
 #define FIREBASE_AUTH "QxdC3N03YVSqUmSkrx1s0PlH0FkmGPkYG5TE8bSS"
@@ -75,7 +80,7 @@ void setup() {
   pinMode (LED_ACCESS_GRANTED, OUTPUT);
   pinMode (LED_ACCESS_DENIED, OUTPUT);
 
-  connectWifi();
+  connectWifiFinalPresentation();
   connectFirebase();
   
   /** 
@@ -100,6 +105,16 @@ void dump_byte_array(byte *buffer, byte bufferSize) {
       Serial.print(buffer[i] < 0x10 ? " 0" : " ");
       Serial.print(buffer[i], HEX);
     }
+}
+
+void connectWifiFinalPresentation(){
+  WiFi.begin(WIFI_SSID, WIFI_PWD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);Serial.println("Connecting to WiFi..");
+  }
+  Serial.println("Connected to the WiFi network");
+  Serial.print("IP address:\t");
+  Serial.println(WiFi.localIP());
 }
 
 void connectWifi(){
@@ -183,8 +198,17 @@ String getActualDate(){
   
   // Initialize a NTPClient to get time
   timeClient.begin();
-  timeClient.update();
-  String date = timeClient.getFullFormattedTime();
+  String date = "";
+  while(true){
+    timeClient.update();
+    int year = timeClient.getYear();
+    Serial.println(year);
+    date = timeClient.getFullFormattedTime();
+
+    if(year >= 2019) break;
+    delay(500);
+  }
+     
   timeClient.end();
   return date;
 }
@@ -351,16 +375,25 @@ void loop() {
   if (!mfrc522.PICC_ReadCardSerial()) return;
 
   String cardUID = convertCardUID2String();
-  //Serial.println(cardUID);
-
   printMessageLCD("Wait a moment!", "Processing...", 0);
     
   /* Reading data from Firebase... */
-  String userUID = getFirebaseStringData("/cards/" + cardUID);
-  if(userUID.startsWith("UID")){
-    /* Get username and last action from database */
-    String userName = getFirebaseStringData("/" + userUID + "/info/name");
-    String lastAction = getFirebaseStringData("/" + userUID + "/info/lastAction");
+  String json = getFirebaseJsonData("/cards/" + cardUID);
+  
+  /* Capacity of the memory pool in bytes */
+  StaticJsonBuffer<200> JSONBuffer;
+  /* Deserialize the JSON document */
+  JsonObject& parsed = JSONBuffer.parseObject(json);
+  
+  /* Test if parsing succeeds. */
+  if (!parsed.success()) {
+    Serial.println("Access Denied!");
+    printMessageLCD("Access Denied!!! ", "Sign up now!", LED_ACCESS_DENIED);
+  }else{
+    const char* userUID = parsed["uid"];
+    const char* userName = parsed["name"];
+    const char* lastAction = parsed["lastAction"];
+
     String type = "";
     if(lastAction == "input"){
       type = "output";
@@ -369,17 +402,15 @@ void loop() {
     }else{
       type = "input";
     }
-    String greeting = (type == "input") ? "Welcome, " : "See you, ";
+    
     /* Updating data [registers and lastAction: in or output] in firebase */
     saveEntryInFirebase(userUID, getActualDate(), type);
     
+    String greeting = (type == "input") ? "Welcome, " : "See you, ";
     Serial.print(greeting + userName + "!");
     printMessageLCD(greeting, userName, LED_ACCESS_GRANTED);
-  }else{
-    Serial.println("Access Denied!");
-    printMessageLCD("Access Denied!!! ", "Sign up now!", LED_ACCESS_DENIED);
   }
-
+  
   // Halt PICC
   //mfrc522.PICC_HaltA();
   // Stop encryption on PCD
@@ -396,6 +427,16 @@ String getFirebaseStringData(String tag){
     count++;
   }
   return (count == 3) ? "" : firebaseData.stringData();
+}
+
+String getFirebaseJsonData(String tag){
+  int count = 1;
+  while(!Firebase.getJSON(firebaseData, tag)){ 
+    Serial.println("Searching in firebase tag: " + tag);
+    if(count == 3){ break; }
+    count++;
+  }
+  return (count == 3) ? "" : firebaseData.jsonData();
 }
 
 String convertCardUID2String(){
