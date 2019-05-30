@@ -11,6 +11,8 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
+import Bar from './charts/Bars';
+
 import RadioForm, {
     RadioButton,
     RadioButtonInput,
@@ -56,13 +58,16 @@ export default class ReportScreen extends React.Component {
                     name="ios-menu" size={32} color="#232323"
                 />
 
+                <Bar data={[]} /> 
+
                 <Text> Gerar Relatório:</Text>
                 {/** RadioButtons */}
                 <RadioForm
                     formHorizontal={true}
                     animation={true}
                 >
-                    {/* To create radio buttons, loop through your array of options 
+                    {/* 
+                    To create radio buttons, loop through your array of options 
                     {radio_props.map((obj, i) => {
                         <RadioButton labelHorizontal={true} key={i} >
                             <RadioButtonInput
@@ -91,7 +96,7 @@ export default class ReportScreen extends React.Component {
                             */}
 
                 </RadioForm>
-                {/** Charts */}
+                {/** Charts 
                 <BarChart
                     data={{
                         labels: ['January', 'February', 'March', 'April', 'May', 'June'],
@@ -110,9 +115,9 @@ export default class ReportScreen extends React.Component {
                     height={220}
                     yAxisLabel={'$'}
                     chartConfig={{
-                        backgroundColor: '#e26a00',
-                        backgroundGradientFrom: '#fb8c00',
-                        backgroundGradientTo: '#ffa726',
+                        backgroundColor: Styles.color.cinza,
+                        backgroundGradientFrom: Styles.color.main,
+                        backgroundGradientTo: Styles.color.secondary,
                         decimalPlaces: 2, // optional, defaults to 2dp
                         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                         style: {
@@ -125,6 +130,7 @@ export default class ReportScreen extends React.Component {
                         borderRadius: 16
                     }}
                 />
+*/}
                 {/** Resumo de Horas */}
 
             </KeyboardAvoidingView>

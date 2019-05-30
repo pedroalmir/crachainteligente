@@ -12,7 +12,7 @@ export default class GetStarted extends Component {
         activeOpacity={0.6}
       >
         {this.props.isLogin
-          ? <ActivityIndicator size="large" style={styles.spinner} color='white' />
+          ? <ActivityIndicator size="large" style={styles.spinner} color='black' />
           : <Text style={styles.text}>FAZER LOGIN</Text>}
       </TouchableOpacity>
     );

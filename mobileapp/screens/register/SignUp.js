@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import PropTypes from 'prop-types';
-import { View, Image, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Image, Text, StyleSheet, TouchableOpacity, Alert, ToastAndroid } from 'react-native';
 import { w, h, totalSize } from '../../api/Dimensions';
 import InputField from '../../components/InputField';
 import Continue from './Continue';
@@ -40,7 +40,8 @@ export default class SignUp extends Component {
       if (name !== '' && email !== '' && password !== '' && (repeat !== '' && repeat === password)) {
         this.createFireBaseAccount(name, email, password);
       } else {
-        console.warn('Fill up all fields correctly');
+        
+        ToastAndroid.showWithGravityAndOffset('Preencha todos os campos', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       }
     })
   };
@@ -50,9 +51,17 @@ export default class SignUp extends Component {
     MyFirebase.createFirebaseAccount(name, email, password)
       .then(result => {
         //if(result) this.props.change('login')();
-        //this.props.change('login')();
-        this.setState({ isCreatingAccount: false });
-        Alert.alert('Info', 'Cadastro realizado com sucesso!');
+        console.log(result);
+        if(result){
+          this.setState({ isCreatingAccount: false });
+          this.props.change('login')();
+          //Alert.alert('Info', 'Cadastro realizado com sucesso!');
+          ToastAndroid.showWithGravityAndOffset('Cadastro realizado com sucesso!', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+        }else{
+          ToastAndroid.showWithGravityAndOffset('Não foi possível realizar o cadastro', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+        }
+      }).catch(err => {
+        console.log(err);
       });
   };
 
@@ -84,7 +93,7 @@ export default class SignUp extends Component {
 
   render() {
     return (
-      <ScrollView contentContainerStyle={styles.container} style={{padding: 0, flex:1, width: w(100), height:h(100)}}>
+      <ScrollView contentContainerStyle={styles.container} style={{ padding: 0, flex: 1, width: w(100), height: h(100) }}>
         <LinearGradient
           colors={['#192f6a', '#3b5998', '#4c669f']}
           style={{ width: "100%", alignItems: "center", marginBottom: h(3) }}>
@@ -92,49 +101,49 @@ export default class SignUp extends Component {
           <Text style={styles.create}>Cadastrar Nova Conta</Text>
         </LinearGradient>
 
-          <InputField
-            placeholder="Name"
-            autoCapitalize="words"
-            error={this.state.isNameCorrect}
-            style={styles.input}
-            focus={this.changeInputFocus}
-            ref={ref => this.name = ref}
-            icon={person}
-          />
-          <InputField
-            placeholder="Email"
-            keyboardType="email-address"
-            error={this.state.isEmailCorrect}
-            style={styles.input}
-            focus={this.changeInputFocus}
-            ref={ref => this.email = ref}
-            icon={email}
-          />
-          <InputField
-            placeholder="Password"
-            error={this.state.isPasswordCorrect}
-            style={styles.input}
-            focus={this.changeInputFocus}
-            ref={ref => this.password = ref}
-            secureTextEntry={true}
-            icon={password}
-          />
-          <InputField
-            placeholder="Repeat Password"
-            error={this.state.isRepeatCorrect}
-            style={styles.input}
-            secureTextEntry={true}
-            returnKeyType="done"
-            blurOnSubmit={true}
-            focus={this.changeInputFocus}
-            ref={ref => this.repeat = ref}
-            icon={repeat}
-          />
-          <Continue isCreating={this.state.isCreatingAccount} click={this.createUserAccount} />
-          <TouchableOpacity onPress={this.props.change('login')} style={styles.touchable}>
-            <Text style={styles.signIn}>{'<'} Fazer Login</Text>
-          </TouchableOpacity>
-        </ScrollView>
+        <InputField
+          placeholder="Name"
+          autoCapitalize="words"
+          error={this.state.isNameCorrect}
+          style={styles.input}
+          focus={this.changeInputFocus}
+          ref={ref => this.name = ref}
+          icon={person}
+        />
+        <InputField
+          placeholder="Email"
+          keyboardType="email-address"
+          error={this.state.isEmailCorrect}
+          style={styles.input}
+          focus={this.changeInputFocus}
+          ref={ref => this.email = ref}
+          icon={email}
+        />
+        <InputField
+          placeholder="Password"
+          error={this.state.isPasswordCorrect}
+          style={styles.input}
+          focus={this.changeInputFocus}
+          ref={ref => this.password = ref}
+          secureTextEntry={true}
+          icon={password}
+        />
+        <InputField
+          placeholder="Repeat Password"
+          error={this.state.isRepeatCorrect}
+          style={styles.input}
+          secureTextEntry={true}
+          returnKeyType="done"
+          blurOnSubmit={true}
+          focus={this.changeInputFocus}
+          ref={ref => this.repeat = ref}
+          icon={repeat}
+        />
+        <Continue isCreating={this.state.isCreatingAccount} click={this.createUserAccount} />
+        <TouchableOpacity onPress={this.props.change('login')} style={styles.touchable}>
+          <Text style={styles.signIn}>{'<'} Fazer Login</Text>
+        </TouchableOpacity>
+      </ScrollView>
     )
   }
 }

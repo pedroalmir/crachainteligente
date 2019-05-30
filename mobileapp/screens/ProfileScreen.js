@@ -7,6 +7,13 @@ import { Ionicons } from '@expo/vector-icons';
 import Styles from '../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 
+import firebase from '../api/MyFirebase'
+
+/**
+ * Precisa de uma função que recebe os registros e gera os meses em que ele trabalhou 
+ *  ela tambem gera para cada mes um json com a carga horaria trabalhada por dia para cada dia
+ */
+
 export default class ProfileScreen extends Component {
     static navigationOptions = {
         header: null,
@@ -17,6 +24,18 @@ export default class ProfileScreen extends Component {
         this.state = {
             currentUser: null,
             isRegister: true,
+            user: {
+                id: 1,
+                info: {
+                    email: "terry.crews@great.ufc.br",
+                    pic: require("../assets/person.jpg"),
+                    cargo: "Analista de Sistemas",
+                    nome: "Terry Crews",
+                    chDiaria: 8,
+                    chMensal: 44,
+                },
+                registers: ["10/05/2019 17:20:15"],
+            },
         };
     }
 
@@ -34,7 +53,21 @@ export default class ProfileScreen extends Component {
 
     componentDidMount() {
         //const {currentUser} = global.firebase.auth()
+        const user = firebase.getUser()
+        newUser = {
+            id: 1,
+            info: {
+                email: user.email,
+                pic: require("../assets/person.jpg"),
+                cargo: "Analista de Sistemas",
+                nome: user.displayName,
+                chDiaria: 8,
+                chMensal: 44,
+            },
+            registers: ["10/05/2019 17:20:15"],
+        }
 
+        this.setState({user:newUser})
     }
 
     render() {
@@ -61,18 +94,18 @@ export default class ProfileScreen extends Component {
                     />
 
                     <Image style={{
-                        width: 140,
-                        height: 140,
-                        borderRadius: 140 / 2,
+                        width: Styles.fWidth(140),
+                        height: Styles.fHeight(140),
+                        borderRadius: Styles.fWidth(140 / 2),
                         borderColor: 'white',
                         borderWidth: 1,
                         margin: 10
                     }}
-                        source={require("../assets/person.jpg")}
+                        source={this.state.user.info.pic}
                     />
 
-                    <Text style={styles.titulo1White}> Terry Crews</Text>
-                    <Text style={styles.titulo2White}> Analista de Sistemas</Text>
+                    <Text style={styles.titulo1White}> {this.state.user.info.nome}</Text>
+                    <Text style={styles.titulo2White}> {this.state.user.info.cargo}</Text>
 
                 </LinearGradient>
 
@@ -90,7 +123,6 @@ export default class ProfileScreen extends Component {
                             fontSize: 18,
                             color: Styles.color.cinzaClaro,
                             padding: 5,
-
                             width: Styles.Constants.baseWidth,
                         }}>
                             <Text>
@@ -102,23 +134,47 @@ export default class ProfileScreen extends Component {
                         <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
                             <Text
                                 style={{ fontSize: 18, color: Styles.color.cinza, marginHorizontal: 20 }}>
-                                terry.crews@great.ufc.br
+                                {this.state.user.info.email}
+                            </Text>
+                        </View>
+
+                        <View style={{
+                            fontSize: 18,
+                            color: Styles.color.cinzaClaro,
+                            padding: 5,
+                            width: Styles.Constants.baseWidth,
+                        }}>
+                            <Text>
+                                Carga Horária Diária
+                            </Text>
+                        </View>
+                        <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
+                            <Text
+                                style={{ fontSize: 18, color: Styles.color.cinza, marginHorizontal: 20 }}>
+                                {this.state.user.info.chDiaria} Horas
+                            </Text>
+                        </View>
+
+                        <View style={{
+                            fontSize: 18,
+                            color: Styles.color.cinzaClaro,
+                            padding: 5,
+                            width: Styles.Constants.baseWidth,
+                        }}>
+                            <Text>
+                                Carga Horária Mensal
+                            </Text>
+                        </View>
+                        <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
+                            <Text
+                                style={{ fontSize: 18, color: Styles.color.cinza, marginHorizontal: 20 }}>
+                                {this.state.user.info.chMensal} Horas
                             </Text>
                         </View>
 
 
                     </ScrollView>
 
-
-                    {/** Botao de fazer check-in 
-          <TouchableOpacity
-            onPress={this.setTextButton}
-            style={styles.buttonView}
-            activeOpacity={0.6}
-          >
-            <Text style={styles.textButton}>{this.state.textButton}</Text>
-          </TouchableOpacity>
-        */}
                 </View>
 
             </View>

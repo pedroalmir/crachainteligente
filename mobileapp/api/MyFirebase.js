@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import {ToastAndroid} from 'react-native'
 
 // Initialize Firebase
 const config = {
@@ -12,25 +13,31 @@ firebase.initializeApp(config);
 
 class MyFirebase {
 
+  getUser = () => {
+    return firebase.auth().currentUser
+  }
+
   userLogin = (email, password) => {
     return new Promise(resolve => {
       firebase.auth().signInWithEmailAndPassword(email, password)
         .catch(error => {
           switch (error.code) {
             case 'auth/invalid-email':
-              console.warn('Invalid email address format.');
+              ToastAndroid.showWithGravityAndOffset('Invalid email address format.', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
               break;
             case 'auth/user-not-found':
             case 'auth/wrong-password':
-              console.warn('Invalid email address or password');
+              ToastAndroid.showWithGravityAndOffset('Invalid email address or password', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
               break;
             default:
-              console.warn('Check your internet connection');
+              ToastAndroid.showWithGravityAndOffset('Check your internet connection', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
           }
           resolve(null);
         }).then(user => {
         if (user) {
-          //console.log(user)
+          //nesse trecho temos acesso aos dados do usuario
+          //user2see = user.user.providerData[0]
+          //console.log(user2see)
           resolve(user);
         }
       });
@@ -42,16 +49,16 @@ class MyFirebase {
       firebase.auth().createUserWithEmailAndPassword(email, password).catch(error => {
         switch (error.code) {
           case 'auth/email-already-in-use':
-            console.warn('This email address is already taken');
+            ToastAndroid.showWithGravityAndOffset('This email address is already taken', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
             break;
           case 'auth/invalid-email':
-            console.warn('Invalid e-mail address format');
+            ToastAndroid.showWithGravityAndOffset('Invalid e-mail address format', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
             break;
           case 'auth/weak-password':
-            console.warn('Password is too weak');
+            ToastAndroid.showWithGravityAndOffset('Password is too weak', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
             break;
           default:
-            console.warn('Check your internet connection');
+            ToastAndroid.showWithGravityAndOffset('Check your internet connection', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
         }
         resolve(false);
       }).then(info => {
@@ -69,18 +76,18 @@ class MyFirebase {
     return new Promise(resolve => {
       firebase.auth().sendPasswordResetEmail(email)
         .then(() => {
-          console.warn('Email with new password has been sent');
+          ToastAndroid.showWithGravityAndOffset('Email with new password has been sent', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
           resolve(true);
         }).catch(error => {
           switch (error.code) {
             case 'auth/invalid-email':
-              console.warn('Invalid email address format');
+              ToastAndroid.showWithGravityAndOffset('Invalid email address format', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
               break;
             case 'auth/user-not-found':
-              console.warn('User with this email does not exist');
+              ToastAndroid.showWithGravityAndOffset('User with this email does not exist', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
               break;
             default:
-              console.warn('Check your internet connection');
+              ToastAndroid.showWithGravityAndOffset('Check your internet connection', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
           }
           resolve(false);
         });

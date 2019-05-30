@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
 
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, ToastAndroid } from 'react-native'
 import InputField from '../../components/InputField';
 import {w, h, totalSize} from '../../api/Dimensions';
 import GetStarted from './GetStarted';
 import MyFirebase from '../../api/MyFirebase';
 import { LinearGradient } from 'expo';
-import Main from '../main/Main';
-
-import MainNavigator from '../../navigator/MainNavigator';
 
 const companyLogo = require('../../assets/logo.png');
 const email = require('../../assets/email.png');
@@ -23,7 +20,7 @@ export default class Login extends Component {
   };
 
   getStarted = () => {
-    const email = this.email.getInputValue();
+    const email = this.email.getInputValue(); 
     const password = this.password.getInputValue();
 
     this.setState({
@@ -33,7 +30,13 @@ export default class Login extends Component {
       if(email !== '' && password !== ''){
         this.loginToFirebase(email, password);
       }else{
-        console.warn('Fill up all fields');
+        ToastAndroid.showWithGravityAndOffset(
+          'Preencha todos os campos',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
       }
     });
   };
@@ -52,15 +55,26 @@ export default class Login extends Component {
     MyFirebase.userLogin(email, password)
       .then(user => {
         this.setState({ isLogin: false });
-        //<Main/>
-        console.log('Okay: ' + user.user.email);
-        //Alert.alert('Info', 'Welcome: ' + user.user.email);
-        this.props.change('main');
+
+        // indo para a main screen
+        this.props.change('main', user)();
+
+      }).catch( err => {
+        
+        console.log("Não foi possivel fazer login: ", err);
+
+        ToastAndroid.showWithGravityAndOffset(
+          'Não foi possível fazer o login',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
       });
   };
   
   render() { 
-    return (
+    return ( 
       <View style={styles.container}>
         
         <LinearGradient
@@ -90,7 +104,8 @@ export default class Login extends Component {
           icon={password}
         />
         <GetStarted
-          click={this.props.change('main')}
+          //click={this.props.change('main')}
+          click={this.getStarted}
                   
           isLogin={this.state.isLogin}
         />
