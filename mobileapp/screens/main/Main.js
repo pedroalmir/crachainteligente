@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Styles from '../../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 
+
 /**
  * 
  * PARA FAZER O TIMER RODAR EM BACKGROUND: https://github.com/ocetnik/react-native-background-timer
@@ -127,7 +128,12 @@ export default class Main extends Component {
   }
 
   componentDidMount() {
-    //const {currentUser} = global.firebase.auth()
+    
+    /**
+     * 
+     const {currentUser} = global.firebase.auth()
+     console.log(currentUser)
+   */
 
     this.setState({
       horas: this.state.user.chDiaria,
@@ -150,7 +156,7 @@ export default class Main extends Component {
   }
 
   render() {
-    const { currentUser } = this.state;
+    //const { currentUser } = this.state;
     //console.log(global.firebase.auth())
 
     return (

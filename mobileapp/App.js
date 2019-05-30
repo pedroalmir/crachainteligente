@@ -1,18 +1,18 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 import { KeyboardAvoidingView, StyleSheet, ImageBackground } from 'react-native';
 
 import Login from './screens/login/Login';
 import SignUp from './screens/register/SignUp';
 import Main from './navigator/MainNavigator';
-import { w } from './api/Dimensions'; 
+import { w } from './api/Dimensions';
 
-export default class CrachaInteligente extends Component{
+export default class CrachaInteligente extends Component {
   state = {
     currentScreen: 'login', // can be: 'login' or 'register'. TODO: improve this!
-  }; 
+  };
 
-  changeScreen = screenName => () => { 
+  changeScreen = screenName => () => {
     this.setState({ currentScreen: screenName });
   };
 
@@ -23,17 +23,19 @@ export default class CrachaInteligente extends Component{
   render() {
     let screenToShow;
 
-    switch(this.state.currentScreen) {
+    switch (this.state.currentScreen) {
       case 'login':
-        screenToShow = <Login change={this.changeScreen} success={this.userSuccessfullyLoggedIn}/>;
+        screenToShow = <Login change={this.changeScreen} success={this.userSuccessfullyLoggedIn} />;
         break;
       case 'main':
-        screenToShow = <Main/>;
+        screenToShow = <Main change={this.changeScreen} />;
         break;
       case 'register':
         screenToShow = <SignUp change={this.changeScreen} />;
         break;
-      
+      default:
+        screenToShow = <Main change={this.changeScreen} />;
+
     }
 
     return (
