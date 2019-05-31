@@ -25,17 +25,17 @@ export default class ProfileScreen extends Component {
             currentUser: null,
             isRegister: true,
             user: {
-                id: 1,
-                info: {
-                    email: "terry.crews@great.ufc.br",
-                    pic: require("../assets/person.jpg"),
-                    cargo: "Analista de Sistemas",
-                    nome: "Terry Crews",
-                    chDiaria: 8,
-                    chMensal: 44,
+                info:{
+                  name: "Terry Crews",
+                  email: "terry.crews@great.ufc.br",
+                  pic: require("../../assets/person.jpg"),
+                  role: "Analista de Sistemas",
+                  chDaily: 8,
+                  chMonthly: 44,
+                  lastAction: "output"
                 },
-                registers: ["10/05/2019 17:20:15"],
-            },
+                registers: [],
+              },
         };
     }
 

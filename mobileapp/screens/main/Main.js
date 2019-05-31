@@ -19,7 +19,7 @@ import firebase from '../../api/MyFirebase'
 export default class Main extends Component {
   static navigationOptions = {
     header: null,
-  }; 
+  };
 
   constructor(props) {
     super(props);
@@ -27,14 +27,16 @@ export default class Main extends Component {
       currentUser: null,
       isRegister: true,
       user: {
-        email: "terry.crews@great.ufc.br",
-        pic: require("../../assets/person.jpg"),
-        cargo: "Analista de Sistemas",
-        nome: "Terry Crews",
-        id: '123', // id do cracha 
-        chDiaria: 8,
-        chMensal: 44,
-        registros: [],
+        info: {
+          name: "Terry Crews",
+          email: "terry.crews@great.ufc.br",
+          pic: require("../../assets/person.jpg"),
+          role: "Analista de Sistemas",
+          chDaily: 8,
+          chMonthly: 44,
+          lastAction: "output"
+        },
+        registers: [],
       },
       horas: 0,
       minutos: 0,
@@ -59,7 +61,7 @@ export default class Main extends Component {
     var minutos = minutos - 1;
     var horas = this.state.horas;
     var horasUp = this.state.horasUp;
-    if (horas !== this.state.user.chDiaria)
+    if (horas !== this.state.user.info.chDaily)
       var minutosUp = minutosUp + 1;
 
 
@@ -100,56 +102,58 @@ export default class Main extends Component {
   setTextButton = () => {
 
     // se estiver entrando
+
     if (this.state.isRegister) {
-      
       // setando o intervalo
       this.countdown = setInterval(this.timer, 1000);
       var today = new Date();
       var u = this.state.user;
 
       // adicionando entrada
-      u.registros.push({
-        data: ["Entrada: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
+      u.info.lastAction = "input";
+      u.registers.push({
+        data: ["Entrada: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()] // colocar tambem o dia/mes/ano
       })
       this.setState({ user: u, isRegister: false, textButton: "Fazer logout" })
+
+      // salvando last action no firebase
+      firebase.updateInfo(u.info);
+      // salvando register no firebase
+      firebase.updateRegister(u.registers[u.registers.length - 1]);
     } else {
       // parando o intervalo...
+      lastAction = "output"
       clearInterval(this.countdown)
 
       var today = new Date();
       var u = this.state.user;
 
-      u.registros.push({
+      u.registers.push({
         data: ["Saída: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
       })
 
       this.setState({ user: u, isRegister: true, textButton: "Fazer login" })
+
+      // salvando last action no firebase
+      firebase.updateInfo(u.info)
+      // salvando register no firebase
+      firebase.updateRegister(u.registers[u.registers.length - 1])
     }
 
     // fazer login / logout tbm
   }
 
   componentDidMount() {
-    
-     //const {currentUser} = firebase.userLogin("rubens@gmail.com", "rubens@gmail.com")
-     firebase.getUser();
-     const user = firebase.getUser()
-     console.log("DENTRO DA MAIN:",user.providerData[0])
 
-     const newUser = {
-      email: user.email,
-      pic: require("../../assets/person.jpg"),
-      cargo: "Analista de Sistemas",
-      nome: user.displayName,
-      id: '123', // id do cracha 
-      chDiaria: 8,
-      chMensal: 44,
-      registros: [],
-    }
+    //pegando o usuario atual no firebase
+    const user = firebase.readInfo();
 
+    console.log("DENTRO DA MAIN:", user)
+
+    // atualizando os dados
     this.setState({
-      user: newUser, 
-      horas: this.state.user.chDiaria,
+      user: user,
+      horas: user.info.chDaily,
       minutos: 0,
       segundos: 0,
       horasUp: 0, minutosUp: 0, segundosUp: 0
@@ -193,13 +197,13 @@ export default class Main extends Component {
 
           <Image
             style={{
-              width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth (140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
+              width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth(140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
             }}
-            source={this.state.user.pic}
+            source={this.state.user.info.pic}
           />
 
-          <Text style={styles.titulo1White}> {this.state.user.nome}</Text>
-          <Text style={styles.titulo2White}> {this.state.user.cargo}</Text>
+          <Text style={styles.titulo1White}> {this.state.user.info.name}</Text>
+          <Text style={styles.titulo2White}> {this.state.user.info.role}</Text>
 
           <View style={[{ flexDirection: "row", flex: 1, alignItems: "center", marginTop: 0 }]}>
             <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
@@ -224,14 +228,14 @@ export default class Main extends Component {
         <View style={{ padding: 10 }}>
           <View>
             <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: Styles.fWidth(18), color: Styles.color.cinza, padding: 8 }}>
-              Registros do dia
+              registers do dia
             </Text>
           </View>
 
 
 
 
-          {/** SECTION List Com os registros do funcionario */}
+          {/** SECTION List Com os registers do funcionario */}
 
 
 
@@ -251,7 +255,7 @@ export default class Main extends Component {
               renderItem={
                 ({ item, index, section }) =>
                   (
-                    <View style={{width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1}}>
+                    <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
                       <Text
                         style={{ fontSize: Styles.fWidth(18), color: Styles.color.cinza, marginHorizontal: 20 }} key={index}>
                         {item}
@@ -262,11 +266,11 @@ export default class Main extends Component {
               renderSectionHeader={
                 ({ section: { title } }) => (
                   <Text
-                    style={{color: Styles.color.cinzaEscuro, fontWeight: '800'}}>{title}
+                    style={{ color: Styles.color.cinzaEscuro, fontWeight: '800' }}>{title}
                   </Text>
                 )
               }
-              sections={this.state.user.registros}
+              sections={this.state.user.registers}
               keyExtractor={(item, index) => item + index}
             />
           </ScrollView>
