@@ -34,7 +34,7 @@ class MyFirebase {
 
     this.email = info.email;
 
-    firebase.database().ref(info.email.hashCode() + '/info').update({
+    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/info').update({
 
       email: info.email,
       name: info.name,
@@ -54,9 +54,12 @@ class MyFirebase {
    * @param {*} email 
    */
   readInfo() {
-    firebase.database().ref(email.hashCode() + '/info').once('value', function (snapshot) {
+    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/info').once('value', function (snapshot) {
+      console.log("readInfo:", snapshot)
       return snapshot;
-    });
+    }).catch(err => {
+      console.log("na readInfo: ",err)
+    })
   }
 
 
@@ -65,7 +68,7 @@ class MyFirebase {
    * @param {*} email 
    */
   readRegisters() {
-    firebase.database().ref(email.hashCode() + '/registers').once('value', function (snapshot) {
+    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/registers').once('value', function (snapshot) {
       return snapshot;
     });
   }
@@ -81,14 +84,14 @@ class MyFirebase {
     registers = this.readRegisters()
     registers.push(reg)
 
-    firebase.database().ref(info.email.hashCode()).update({
+    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/').update({
 
-      registers:registers
+      registers: registers
 
     })
   }
 
-  
+
 
   // PRE ME
 
@@ -105,6 +108,8 @@ class MyFirebase {
               ToastAndroid.showWithGravityAndOffset('Invalid email address format.', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
               break;
             case 'auth/user-not-found':
+              ToastAndroid.showWithGravityAndOffset('User not found', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+              break;
             case 'auth/wrong-password':
               ToastAndroid.showWithGravityAndOffset('Invalid email address or password', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
               break;
@@ -124,7 +129,7 @@ class MyFirebase {
   };
 
   createFirebaseAccount = (name, email, password) => {
-
+    this.email = email
     return new Promise(resolve => {
       firebase.auth().createUserWithEmailAndPassword(email, password).catch(error => {
         switch (error.code) {
@@ -140,18 +145,32 @@ class MyFirebase {
           default:
             ToastAndroid.showWithGravityAndOffset('Check your internet connection', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
         }
+        console.log("deu errado!")
         resolve(false);
+        return false;
       }).then(info => {
         if (info) {
+          
+          firebase.auth().ref("crachainteligente/users" + email.hashCode() + '/').push({
+            email: email,
+            name: name,
+            pic: null,
+            chDaily: null,
+            chMonthly: null,
+            role: null,
+          });
           firebase.auth().currentUser.updateProfile({
             displayName: name
           });
+          console.log("deu CERTO!")
           resolve(true);
+          return true;
         }
+        resolve(false);
       });
     });
   };
-
+  
   sendEmailWithPassword = (email) => {
     return new Promise(resolve => {
       firebase.auth().sendPasswordResetEmail(email)

@@ -38,9 +38,15 @@ export default class SignUp extends Component {
       isRepeatCorrect: repeat === '' || repeat !== password,
     }, () => {
       if (name !== '' && email !== '' && password !== '' && (repeat !== '' && repeat === password)) {
-        this.createFireBaseAccount(name, email, password);
+        // tudo ok, pode criar
+        if (MyFirebase.createFirebaseAccount(name, email, password)){
+          console.log("going home")
+        }
+
+        //this.createFireBaseAccount(name, email, password);
+        // na main, ele deve redirecionar para o Perfil, onde as informações serão atualizadas
       } else {
-        
+
         ToastAndroid.showWithGravityAndOffset('Preencha todos os campos', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       }
     })
@@ -51,13 +57,13 @@ export default class SignUp extends Component {
     MyFirebase.createFirebaseAccount(name, email, password)
       .then(result => {
         //if(result) this.props.change('login')();
-        console.log(result);
-        if(result){
+
+        if (result) {
           this.setState({ isCreatingAccount: false });
           this.props.change('login')();
           //Alert.alert('Info', 'Cadastro realizado com sucesso!');
           ToastAndroid.showWithGravityAndOffset('Cadastro realizado com sucesso!', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-        }else{
+        } else {
           ToastAndroid.showWithGravityAndOffset('Não foi possível realizar o cadastro', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
         }
       }).catch(err => {

@@ -12,8 +12,8 @@ const colors = {
      cinzaClaro : '#e3e3e3',
      cinzaEscuro: '#232323',
      rubro: "#5b1313",
-     main: "232323",
-     secondary: "2f2f2f"
+     main: "#232323",
+     secondary: "#2f2f2f"
 }
 
 const Constants = {
@@ -117,6 +117,20 @@ const styleButtons = StyleSheet.create({
         width: 35 * Constants.aspX,
         height: 35 * Constants.aspY,
         backgroundColor: colors.verdeMusgo,
+        textAlign: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 20,
+        color: colors.branco,
+        margin: 10 * Constants.aspX,
+        padding: 3 * Constants.aspX,
+        fontWeight: 'bold',
+    },
+    RoundButtonBlue:{
+        borderRadius: 35 * Constants.aspX,
+        width: 35 * Constants.aspX,
+        height: 35 * Constants.aspY,
+        backgroundColor: colors.main,
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',

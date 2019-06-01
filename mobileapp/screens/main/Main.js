@@ -96,6 +96,32 @@ export default class Main extends Component {
     }
      */
 
+
+  componentDidMount() {
+
+    //pegando o usuario atual no firebase
+    const user = firebase.readInfo();
+
+    console.log("DENTRO DA MAIN:", user)
+
+    /**
+     * 
+     if(!user.chDaily){
+       this.props.navigation.navigate('Perfil')
+      }
+      
+      // atualizando os dados
+      this.setState({
+        user: user,
+        horas: user.chDaily,
+        minutos: 0,
+        segundos: 0,
+        horasUp: 0, minutosUp: 0, segundosUp: 0
+      })
+       */
+  }
+
+  
   /**
    * Callback for When the login / logout button is pressed
    */
@@ -141,23 +167,6 @@ export default class Main extends Component {
     }
 
     // fazer login / logout tbm
-  }
-
-  componentDidMount() {
-
-    //pegando o usuario atual no firebase
-    const user = firebase.readInfo();
-
-    console.log("DENTRO DA MAIN:", user)
-
-    // atualizando os dados
-    this.setState({
-      user: user,
-      horas: user.info.chDaily,
-      minutos: 0,
-      segundos: 0,
-      horasUp: 0, minutosUp: 0, segundosUp: 0
-    })
   }
 
   /**
