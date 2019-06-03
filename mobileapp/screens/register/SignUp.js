@@ -39,9 +39,7 @@ export default class SignUp extends Component {
     }, () => {
       if (name !== '' && email !== '' && password !== '' && (repeat !== '' && repeat === password)) {
         // tudo ok, pode criar
-        if (MyFirebase.createFirebaseAccount(name, email, password)){
-          console.log("going home")
-        }
+        MyFirebase.createFirebaseAccount(name, email, password)
 
         //this.createFireBaseAccount(name, email, password);
         // na main, ele deve redirecionar para o Perfil, onde as informações serão atualizadas

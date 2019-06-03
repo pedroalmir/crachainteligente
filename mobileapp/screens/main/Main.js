@@ -26,19 +26,18 @@ export default class Main extends Component {
     this.state = {
       currentUser: null,
       isRegister: true,
+      name: "...", 
       user: {
-        info: {
-          name: "Terry Crews",
-          email: "terry.crews@great.ufc.br",
-          pic: require("../../assets/person.jpg"),
-          role: "Analista de Sistemas",
-          chDaily: 8,
-          chMonthly: 44,
-          lastAction: "output"
-        },
+        name: "Terry Crews",
+        email: "terry.crews@great.ufc.br",
+        pic: require("../../assets/person.jpg"),
+        role: "Analista de Sistemas",
+        chDaily: 8,
+        chMonthly: 44,
+        lastAction: "output",
         registers: [],
       },
-      horas: 0,
+      horas: 8,
       minutos: 0,
       segundos: 0,
       horasUp: 0,
@@ -46,6 +45,16 @@ export default class Main extends Component {
       segundosUp: 0,
       textButton: "Fazer login",
     };
+
+  }
+
+  syncUser = async () => {
+    firebase.readInfo().then(value => {
+      console.log("syncUser:", value);
+      this.setState({ user: value, name: value.name });
+    }).catch(error => {
+      console.log(error);
+    })
 
   }
 
@@ -61,7 +70,7 @@ export default class Main extends Component {
     var minutos = minutos - 1;
     var horas = this.state.horas;
     var horasUp = this.state.horasUp;
-    if (horas !== this.state.user.info.chDaily)
+    if (horas !== this.state.user.chDaily)
       var minutosUp = minutosUp + 1;
 
 
@@ -100,28 +109,11 @@ export default class Main extends Component {
   componentDidMount() {
 
     //pegando o usuario atual no firebase
-    const user = firebase.readInfo();
+    //this.syncUser();
 
-    console.log("DENTRO DA MAIN:", user)
-
-    /**
-     * 
-     if(!user.chDaily){
-       this.props.navigation.navigate('Perfil')
-      }
-      
-      // atualizando os dados
-      this.setState({
-        user: user,
-        horas: user.chDaily,
-        minutos: 0,
-        segundos: 0,
-        horasUp: 0, minutosUp: 0, segundosUp: 0
-      })
-       */
   }
 
-  
+
   /**
    * Callback for When the login / logout button is pressed
    */
@@ -136,16 +128,16 @@ export default class Main extends Component {
       var u = this.state.user;
 
       // adicionando entrada
-      u.info.lastAction = "input";
+      u.lastAction = "input";
       u.registers.push({
         data: ["Entrada: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()] // colocar tambem o dia/mes/ano
       })
       this.setState({ user: u, isRegister: false, textButton: "Fazer logout" })
 
       // salvando last action no firebase
-      firebase.updateInfo(u.info);
+      //firebase.updateInfo(u);
       // salvando register no firebase
-      firebase.updateRegister(u.registers[u.registers.length - 1]);
+      //firebase.updateRegister(u.registers[u.registers.length - 1]);
     } else {
       // parando o intervalo...
       lastAction = "output"
@@ -161,9 +153,9 @@ export default class Main extends Component {
       this.setState({ user: u, isRegister: true, textButton: "Fazer login" })
 
       // salvando last action no firebase
-      firebase.updateInfo(u.info)
+      //firebase.updateInfo(u)
       // salvando register no firebase
-      firebase.updateRegister(u.registers[u.registers.length - 1])
+     // firebase.updateRegister(u.registers[u.registers.length - 1])
     }
 
     // fazer login / logout tbm
@@ -208,11 +200,13 @@ export default class Main extends Component {
             style={{
               width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth(140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
             }}
-            source={this.state.user.info.pic}
+            source={this.state.user.pic ? this.state.user.pic : require("../../assets/person.png")}
           />
 
-          <Text style={styles.titulo1White}> {this.state.user.info.name}</Text>
-          <Text style={styles.titulo2White}> {this.state.user.info.role}</Text>
+          <Text style={styles.titulo1White}> {this.state.user.name ? this.state.user.name : "..."}</Text>
+          <Text style={styles.titulo2White}> {this.state.user.role ? this.state.user.role : "..."}</Text>
+          <Text style={styles.titulo2White}> {this.state.name}</Text>
+
 
           <View style={[{ flexDirection: "row", flex: 1, alignItems: "center", marginTop: 0 }]}>
             <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
@@ -241,7 +235,7 @@ export default class Main extends Component {
             </Text>
           </View>
 
-
+          
 
 
           {/** SECTION List Com os registers do funcionario */}
@@ -279,7 +273,7 @@ export default class Main extends Component {
                   </Text>
                 )
               }
-              sections={this.state.user.registers}
+              sections={this.state.user.registers ? this.state.user.registers : []}
               keyExtractor={(item, index) => item + index}
             />
           </ScrollView>
@@ -339,7 +333,7 @@ const styles = StyleSheet.create({
 
   },
   buttonView: {
-    width: '85%',
+    width: '85%', 
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',

@@ -32,20 +32,29 @@ class MyFirebase {
    */
   updateInfo(info) {
 
-    this.email = info.email;
+    return new Promise(resolve => {
 
-    firebase.database().ref(this.email.hashCode() + '/info').update({
+      this.email = info.email;
 
-      email: info.email,
-      name: info.name,
-      lastAction: info.lastAction,
-      chDaily: info.chDaily,
-      chMonthly: info.chMonthly,
-      pic: info.pic,
-      phone: info.phone,
-      role: info.role,
+      firebase.database().ref(this.email.hashCode() + '/info').update({
 
-    });
+        email: info.email,
+        name: info.name,
+        lastAction: info.lastAction,
+        chDaily: info.chDaily,
+        chMonthly: info.chMonthly,
+        pic: info.pic,
+        phone: info.phone,
+        role: info.role,
+
+      }).then(result => {
+        resolve(true);
+        console.log("ok on update");
+      }).catch(error => {
+        resolve(false);
+        console.log("dentro da updateInfo:", error)
+      });
+    })
   }
 
 
@@ -54,12 +63,16 @@ class MyFirebase {
    * @param {*} email 
    */
   readInfo() {
-    firebase.database().ref(this.email.hashCode() + '/info').once('value', function (snapshot) {
-      console.log("readInfo:", snapshot)
-      return snapshot;
-    }).catch(err => {
-      console.log("na readInfo: ",err)
-    })
+
+    return new Promise(resolve => {
+
+      firebase.database().ref(this.email.hashCode() + '/info').once('value', function (snapshot) {
+        resolve(snapshot)
+      }).catch(err => {
+        resolve(null)
+        console.log("na readInfo: ", err)
+      })
+    });
   }
 
 
@@ -68,8 +81,15 @@ class MyFirebase {
    * @param {*} email 
    */
   readRegisters() {
-    firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
-      return snapshot;
+    new Promise(resolve => {
+
+      firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
+        resolve(snapshot);
+      }).catch(error => {
+        console.log("erro na readRegister:", error);
+        resolve(false);
+      });
+
     });
   }
 
@@ -84,7 +104,7 @@ class MyFirebase {
     registers = this.readRegisters()
     registers.push(reg)
 
-    firebase.database().ref(this.email.hashCode() + '/').update({
+    firebase.database().ref(this.email.hashCode() + '/registers').update({
 
       registers: registers
 
@@ -148,8 +168,7 @@ class MyFirebase {
         }
         console.log("deu errado!")
         resolve(false);
-        return false;
-      }).then(info => {       
+      }).then(info => {
 
         if (info) {
           firebase.auth().currentUser.updateProfile({
@@ -158,18 +177,24 @@ class MyFirebase {
 
           firebase.database().ref().child(email.hashCode()).child('info').set({
             email: email,
-            name: name
+            name: name,
+            phone: "",
+            pic: "",
+            role: "Desconhecido",
+            chDaily: 8,
+            chMonthly: 44,
+            lastAction: "output",
           });
 
+          ToastAndroid.showWithGravityAndOffset('Usuário cadastrado com sucesso', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
           console.log("Update and save")
           resolve(true);
-          return true;
         }
         resolve(false);
       });
     });
   };
-  
+
   sendEmailWithPassword = (email) => {
     return new Promise(resolve => {
       firebase.auth().sendPasswordResetEmail(email)
