@@ -34,7 +34,7 @@ class MyFirebase {
 
     this.email = info.email;
 
-    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/info').update({
+    firebase.database().ref(this.email.hashCode() + '/info').update({
 
       email: info.email,
       name: info.name,
@@ -54,7 +54,7 @@ class MyFirebase {
    * @param {*} email 
    */
   readInfo() {
-    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/info').once('value', function (snapshot) {
+    firebase.database().ref(this.email.hashCode() + '/info').once('value', function (snapshot) {
       console.log("readInfo:", snapshot)
       return snapshot;
     }).catch(err => {
@@ -68,7 +68,7 @@ class MyFirebase {
    * @param {*} email 
    */
   readRegisters() {
-    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/registers').once('value', function (snapshot) {
+    firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
       return snapshot;
     });
   }
@@ -84,7 +84,7 @@ class MyFirebase {
     registers = this.readRegisters()
     registers.push(reg)
 
-    firebase.database().ref("crachainteligente/users/" + this.email.hashCode() + '/').update({
+    firebase.database().ref(this.email.hashCode() + '/').update({
 
       registers: registers
 
@@ -129,7 +129,8 @@ class MyFirebase {
   };
 
   createFirebaseAccount = (name, email, password) => {
-    this.email = email
+    this.email = email;
+
     return new Promise(resolve => {
       firebase.auth().createUserWithEmailAndPassword(email, password).catch(error => {
         switch (error.code) {
@@ -148,21 +149,19 @@ class MyFirebase {
         console.log("deu errado!")
         resolve(false);
         return false;
-      }).then(info => {
+      }).then(info => {       
+
         if (info) {
-          
-          firebase.auth().ref("crachainteligente/users" + email.hashCode() + '/').push({
-            email: email,
-            name: name,
-            pic: null,
-            chDaily: null,
-            chMonthly: null,
-            role: null,
-          });
           firebase.auth().currentUser.updateProfile({
             displayName: name
           });
-          console.log("deu CERTO!")
+
+          firebase.database().ref().child(email.hashCode()).child('info').set({
+            email: email,
+            name: name
+          });
+
+          console.log("Update and save")
           resolve(true);
           return true;
         }
