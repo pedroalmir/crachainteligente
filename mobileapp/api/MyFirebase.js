@@ -26,6 +26,12 @@ class MyFirebase {
 
   email;
 
+  alwaysUpdateUser() {
+    firebase.database().ref('Users/').on('value', function (snapshot) {
+      console.log(snapshot.val())
+    });
+  }
+
   /**
    * Updates the new Info to the database
    * @param {*} info 
@@ -49,7 +55,7 @@ class MyFirebase {
 
       }).then(result => {
         resolve(true);
-        console.log("ok on update");
+        console.log("dados atualizados");
       }).catch(error => {
         resolve(false);
         console.log("dentro da updateInfo:", error)
@@ -70,7 +76,7 @@ class MyFirebase {
         resolve(snapshot)
       }).catch(err => {
         resolve(null)
-        console.log("na readInfo: ", err)
+        console.log("Erro na readInfo: ", err)
       })
     });
   }
@@ -81,34 +87,34 @@ class MyFirebase {
    * @param {*} email 
    */
   readRegisters() {
-    new Promise(resolve => {
+    return new Promise(resolve => {
 
       firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
-        resolve(snapshot);
-      }).catch(error => {
-        console.log("erro na readRegister:", error);
-        resolve(false);
-      });
-
+        resolve(snapshot)
+      }).catch(err => {
+        resolve(null)
+        console.log("Erro na readRegisters: ", err)
+      })
     });
   }
 
 
   /**
-   * Saves the new register to the database (not optimal)
-   * @param {*} info 
+   * Saves the new register to the database
+   * @param {*} reg 
    */
   updateRegister(reg) {
 
-    // this must be huge... =(
-    registers = this.readRegisters()
-    registers.push(reg)
+    firebase.database().ref(this.email.hashCode() + '/registers')
+      .push(reg)
+      .then(result => {
+        console.log("registro atualizado")
+      })
+      .catch(err => {
+        console.log("deu erro ao inserir registro:", err)
+      });
 
-    firebase.database().ref(this.email.hashCode() + '/registers').update({
 
-      registers: registers
-
-    })
   }
 
 
@@ -171,10 +177,12 @@ class MyFirebase {
       }).then(info => {
 
         if (info) {
+          // adicionando o username
           firebase.auth().currentUser.updateProfile({
             displayName: name
           });
 
+          // criando a info do usuario
           firebase.database().ref().child(email.hashCode()).child('info').set({
             email: email,
             name: name,
@@ -184,6 +192,10 @@ class MyFirebase {
             chDaily: 8,
             chMonthly: 44,
             lastAction: "output",
+          });
+          // criando os registros dele
+          firebase.database().ref().child(email.hashCode()).child('registers').set({
+            
           });
 
           ToastAndroid.showWithGravityAndOffset('Usuário cadastrado com sucesso', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);

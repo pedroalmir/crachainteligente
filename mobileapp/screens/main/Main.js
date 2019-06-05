@@ -7,9 +7,7 @@ import { Registro } from './Registro';
 import { Ionicons } from '@expo/vector-icons';
 import Styles from '../../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
-
-import firebase from '../../api/MyFirebase'
-
+import MyFirebase from '../../api/MyFirebase';
 
 /**
  * 
@@ -17,6 +15,7 @@ import firebase from '../../api/MyFirebase'
  * Isso deve ser feito apenas por último, pois é necessário que o app seja ejetado no expo, o que é irreversível.
  */
 export default class Main extends Component {
+
   static navigationOptions = {
     header: null,
   };
@@ -26,16 +25,16 @@ export default class Main extends Component {
     this.state = {
       currentUser: null,
       isRegister: true,
-      name: "...", 
+      name: "Terry Crews",
+      email: "terry.crews@great.ufc.br",
+      pic: require("../../assets/person.jpg"),
+      role: "Analista de Sistemas",
+      phone: "8588776655",
+      chDaily: 8,
+      chMonthly: 44,
+      lastAction: "output",
+      registers: [],
       user: {
-        name: "Terry Crews",
-        email: "terry.crews@great.ufc.br",
-        pic: require("../../assets/person.jpg"),
-        role: "Analista de Sistemas",
-        chDaily: 8,
-        chMonthly: 44,
-        lastAction: "output",
-        registers: [],
       },
       horas: 8,
       minutos: 0,
@@ -48,13 +47,27 @@ export default class Main extends Component {
 
   }
 
-  syncUser = async () => {
-    firebase.readInfo().then(value => {
-      console.log("syncUser:", value);
-      this.setState({ user: value, name: value.name });
-    }).catch(error => {
-      console.log(error);
-    })
+  componentDidMount() {
+
+    //pegando o usuario atual no firebase advindo da loading... FOI O UNICO JEITO QUE FUNCIONOU!
+    u =  this.props.user;
+    reg = this.props.registers;
+
+    console.log("na main: user: ", u);
+    console.log("na main: registers: ", reg);
+/**
+ * 
+ */
+ this.setState({
+   name: JSON.parse(u).name,
+   email: JSON.parse(u).email,
+   phone: JSON.parse(u).phone,
+      role: JSON.parse(u).role,
+      chDaily: JSON.parse(u).chDaily,
+      chMonthly: JSON.parse(u).chMonthly,
+      pic: JSON.parse(u).pic,
+      registers: JSON.parse(u).registers
+    });
 
   }
 
@@ -70,7 +83,7 @@ export default class Main extends Component {
     var minutos = minutos - 1;
     var horas = this.state.horas;
     var horasUp = this.state.horasUp;
-    if (horas !== this.state.user.chDaily)
+    if (horas !== this.state.chDaily)
       var minutosUp = minutosUp + 1;
 
 
@@ -106,12 +119,7 @@ export default class Main extends Component {
      */
 
 
-  componentDidMount() {
 
-    //pegando o usuario atual no firebase
-    //this.syncUser();
-
-  }
 
 
   /**
@@ -124,41 +132,35 @@ export default class Main extends Component {
     if (this.state.isRegister) {
       // setando o intervalo
       this.countdown = setInterval(this.timer, 1000);
-      var today = new Date();
-      var u = this.state.user;
 
-      // adicionando entrada
-      u.lastAction = "input";
-      u.registers.push({
-        data: ["Entrada: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()] // colocar tambem o dia/mes/ano
-      })
-      this.setState({ user: u, isRegister: false, textButton: "Fazer logout" })
+      var fullData = new Date();
 
-      // salvando last action no firebase
-      //firebase.updateInfo(u);
-      // salvando register no firebase
-      //firebase.updateRegister(u.registers[u.registers.length - 1]);
+      // dd/mm/yy que sera inserida como chave
+      today = fullData.getDay() + '-' + fullData.getMonth() + '-' + fullData.getUTCFullYear();
+
+      // action: hh/mm/ss que será o value do today
+      hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+
+      reg = this.state.registers;
+      reg.push("Entrada: " + hora)
+
+      this.setState({
+         registers: reg, 
+         lastAction: "input", 
+         isRegister: false, 
+         textButton: "Fazer logout" 
+        });
+
+      MyFirebase.updateRegister(today + hora)
+
     } else {
       // parando o intervalo...
       lastAction = "output"
       clearInterval(this.countdown)
 
-      var today = new Date();
-      var u = this.state.user;
-
-      u.registers.push({
-        data: ["Saída: " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()]
-      })
-
-      this.setState({ user: u, isRegister: true, textButton: "Fazer login" })
-
-      // salvando last action no firebase
-      //firebase.updateInfo(u)
-      // salvando register no firebase
-     // firebase.updateRegister(u.registers[u.registers.length - 1])
+      
     }
 
-    // fazer login / logout tbm
   }
 
   /**
@@ -200,13 +202,11 @@ export default class Main extends Component {
             style={{
               width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth(140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
             }}
-            source={this.state.user.pic ? this.state.user.pic : require("../../assets/person.png")}
+          source={this.state.pic ? this.state.pic : require("../../assets/person.png")}
           />
 
-          <Text style={styles.titulo1White}> {this.state.user.name ? this.state.user.name : "..."}</Text>
-          <Text style={styles.titulo2White}> {this.state.user.role ? this.state.user.role : "..."}</Text>
-          <Text style={styles.titulo2White}> {this.state.name}</Text>
-
+          <Text style={styles.titulo1White}> {this.state.name}</Text>
+          <Text style={styles.titulo2White}> {this.state.role}</Text>
 
           <View style={[{ flexDirection: "row", flex: 1, alignItems: "center", marginTop: 0 }]}>
             <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
@@ -235,7 +235,7 @@ export default class Main extends Component {
             </Text>
           </View>
 
-          
+
 
 
           {/** SECTION List Com os registers do funcionario */}
@@ -273,7 +273,7 @@ export default class Main extends Component {
                   </Text>
                 )
               }
-              sections={this.state.user.registers ? this.state.user.registers : []}
+              sections={this.state.registers ? this.state.registers : []}
               keyExtractor={(item, index) => item + index}
             />
           </ScrollView>
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
 
   },
   buttonView: {
-    width: '85%', 
+    width: '85%',
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',

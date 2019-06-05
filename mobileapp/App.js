@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, StyleSheet, ImageBackground } from 'react-native'
 import Login from './screens/login/Login';
 import SignUp from './screens/register/SignUp';
 import Main from './navigator/MainNavigator';
+import Loading from "./screens/main/Loading";
 import { w } from './api/Dimensions';
 
 export default class CrachaInteligente extends Component {
@@ -34,7 +35,7 @@ export default class CrachaInteligente extends Component {
         break;
       case 'main':
         
-        screenToShow = <Main />;
+        screenToShow = <Loading />;
         break;
       case 'register':
         screenToShow = <SignUp change={this.changeScreen} />;
