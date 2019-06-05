@@ -35,7 +35,7 @@ export default class CrachaInteligente extends Component {
         break;
       case 'main':
         
-        screenToShow = <Loading />;
+        screenToShow = <Main />;
         break;
       case 'register':
         screenToShow = <SignUp change={this.changeScreen} />;

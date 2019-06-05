@@ -27,7 +27,7 @@ class MyFirebase {
   email;
 
   alwaysUpdateUser() {
-    firebase.database().ref('Users/').on('value', function (snapshot) {
+    firebase.database().ref(this.email.hashCode() + '/registers').on('value', function (snapshot) {
       console.log(snapshot.val())
     });
   }
@@ -73,7 +73,7 @@ class MyFirebase {
     return new Promise(resolve => {
 
       firebase.database().ref(this.email.hashCode() + '/info').once('value', function (snapshot) {
-        resolve(snapshot)
+        resolve(snapshot.val())
       }).catch(err => {
         resolve(null)
         console.log("Erro na readInfo: ", err)
@@ -90,7 +90,7 @@ class MyFirebase {
     return new Promise(resolve => {
 
       firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
-        resolve(snapshot)
+        resolve(snapshot.val())
       }).catch(err => {
         resolve(null)
         console.log("Erro na readRegisters: ", err)
@@ -180,27 +180,40 @@ class MyFirebase {
           // adicionando o username
           firebase.auth().currentUser.updateProfile({
             displayName: name
-          });
+          }).then(res => {
 
-          // criando a info do usuario
-          firebase.database().ref().child(email.hashCode()).child('info').set({
-            email: email,
-            name: name,
-            phone: "",
-            pic: "",
-            role: "Desconhecido",
-            chDaily: 8,
-            chMonthly: 44,
-            lastAction: "output",
-          });
-          // criando os registros dele
-          firebase.database().ref().child(email.hashCode()).child('registers').set({
-            
-          });
+            // criando a info do usuario
+            firebase.database().ref(email.hashCode() + '/info').set({
+              email: email,
+              name: name,
+              phone: "",
+              pic: "",
+              role: "Desconhecido",
+              chDaily: 8,
+              chMonthly: 44,
+              lastAction: "output",
+            }).then(res => {
 
-          ToastAndroid.showWithGravityAndOffset('Usuário cadastrado com sucesso', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-          console.log("Update and save")
-          resolve(true);
+              // criando os registros dele
+              firebase.database().ref(email.hashCode() + '/registers').set({
+                registers: []
+              }).then(res => {
+
+                //por ultimo... sucesso!
+                ToastAndroid.showWithGravityAndOffset('Usuário cadastrado com sucesso', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+                console.log("Update and save")
+                resolve(true);
+              })
+              .catch(err => {
+                console.log("erro ao cadastrar os registros", err)
+                resolve(false);
+              });
+              
+            }).catch(err => {
+              console.log("erro ao cadastrar a info", err)
+              resolve(false);
+            });
+          });
         }
         resolve(false);
       });

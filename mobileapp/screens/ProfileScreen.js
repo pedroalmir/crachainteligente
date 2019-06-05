@@ -57,17 +57,18 @@ export default class ProfileScreen extends Component {
       }
     */
 
-    syncUser = async () => {
-        firebase.readInfo().then(value => {
-            console.log("syncUser:", value);
-            this.setState({ user: value });
-        }).catch(error => {
-            console.log(error);
-        })
-
+    componentDidMount() {
+        this.syncUser();
     }
 
-    componentDidMount() {
+    syncUser = async () => {
+        firebase.readInfo().then(value => {
+            console.log("Loading User:", value);
+            this.setState({ user: value, isLoadingUser: false })
+        }).catch(error => {
+            ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+            console.log(error);
+        })
 
     }
 
@@ -106,9 +107,12 @@ export default class ProfileScreen extends Component {
                 chDaily: this.state.chDaily,
                 chMonthly: this.state.chMonthly,
                 pic: this.state.pic,
+            }).then(result => {
+                ToastAndroid.showWithGravityAndOffset('Informações Atualizadas!', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+            }).catch(error => {
+                console.log("erro ao submeter", error);
             });
-            ToastAndroid.showWithGravityAndOffset('Informações Atualizadas!', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-            this.props.navigation.navigate('Home');
+
         }
     }
 
@@ -117,112 +121,145 @@ export default class ProfileScreen extends Component {
         //console.log(global.firebase.auth())
 
         return (
-            <View style={Styles.container.container}>
-
-                <LinearGradient
-                    colors={['#4c669f', '#3b5998', '#192f6a']}
-                    style={styles.mainContainer}>
-                    {/** Menu Icon */}
-                    <Ionicons
-                        onPress={() => { this.props.navigation.openDrawer(); }}
-                        style={{
-                            justifyContent: 'flex-start',
-                            backgroundColor: 'rgba(255,255,255,0)',
-                            alignItems: 'flex-start',
-                            alignSelf: "flex-start",
-                            marginHorizontal: 10
-                        }}
-                        name="ios-menu" size={32} color="#fefefe"
-                    />
-
-                    <Image style={{
-                        width: Styles.fWidth(140),
-                        height: Styles.fHeight(140),
-                        borderRadius: Styles.fWidth(140 / 2),
-                        borderColor: 'white',
-                        borderWidth: 1,
-                        margin: 10
-                    }}
-                        source={this.state.pic}
-                    />
-
-                    <Text style={styles.titulo1White}> {this.state.name}</Text>
-                    <Text style={styles.titulo2White}> {this.state.role}</Text>
-
-                </LinearGradient>
-
-                <View style={{ padding: 10 }}>
-
-                    {/** SECTION List Com os registros do funcionario */}
-
-                    <ScrollView style={{
-                        height: h(55), marginTop: 0,
-                        paddingHorizontal: 15,
-                        marginBottom: 15,
-                    }}>
-
-
-                        {/**  linha EMAIL  */}
-
-                        <View style={styles.tituloSection}>
-                            <Text> Email </Text>
-                        </View> 
-                        
-
-
-                        {/**  linha PHONE  */}
-
-                        <View style={styles.tituloSection}>
-                            <Text> Phone </Text>
+            <View style={{ flex: 1 }}>
+                {
+                    this.state.isLoadingRegisters || this.state.isLoadingUser
+                        ?
+                        <View style={{ alignItems: "center", justifyContent: 'center', flex: 1 }}>
+                            <ActivityIndicator size="large" style={[styles.spinner, { alignSelf: "center" }]} color='black' />
                         </View>
 
+                        :
+                        <View style={Styles.container.container}>
+
+                            <LinearGradient
+                                colors={['#4c669f', '#3b5998', '#192f6a']}
+                                style={styles.mainContainer}>
+                                {/** Menu Icon */}
+                                <Ionicons
+                                    onPress={() => { this.props.navigation.openDrawer(); }}
+                                    style={{
+                                        justifyContent: 'flex-start',
+                                        backgroundColor: 'rgba(255,255,255,0)',
+                                        alignItems: 'flex-start',
+                                        alignSelf: "flex-start",
+                                        marginHorizontal: 10
+                                    }}
+                                    name="ios-menu" size={32} color="#fefefe"
+                                />
+
+                                <Image style={{
+                                    width: Styles.fWidth(140),
+                                    height: Styles.fHeight(140),
+                                    borderRadius: Styles.fWidth(140 / 2),
+                                    borderColor: 'white',
+                                    borderWidth: 1,
+                                    margin: 10
+                                }}
+                                    source={this.state.pic ? this.state.pic : require('../assets/person.png')}
+                                />
+
+                                <Text style={styles.titulo1White}> {this.state.name}</Text>
+                                <Text style={styles.titulo2White}> {this.state.role}</Text>
+
+                            </LinearGradient>
+
+                            <View style={{ padding: 10 }}>
+
+                                {/** SECTION List Com os registros do funcionario */}
+
+                                <ScrollView style={{
+                                    height: h(55), marginTop: 0,
+                                    paddingHorizontal: 15,
+                                    marginBottom: 15,
+                                }}>
+
+
+                                    {/**  linha EMAIL  */}
+
+                                    <View style={styles.tituloSection}>
+                                        <Text> Email </Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={(text) => { }}
+                                        editable={false}
+                                        value={this.state.email}
+                                    />
 
 
 
-                        {/**  linha ROLE  */}
-                        <View style={styles.tituloSection}>
-                            <Text> Cargo </Text>
-                        </View>
+                                    {/**  linha PHONE  */}
+
+                                    <View style={styles.tituloSection}>
+                                        <Text> Telefone </Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={(text) => { this.setState({ phone: text, hasChanged: true }) }}
+                                        value={this.state.phone}
+                                    />
+
+
+
+                                    {/**  linha ROLE  */}
+                                    <View style={styles.tituloSection}>
+                                        <Text> Cargo </Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={(text) => { this.setState({ role: text, hasChanged: true }) }}
+                                        value={this.state.role}
+                                    />
 
 
 
 
+                                    {/**  linha CHD  */}
 
-                        {/**  linha CHD  */}
-
-                        <View style={styles.tituloSection}>
-                            <Text> Carga Horária Diária </Text>
-                        </View>
-
-
-
-
-                        {/**  linha CHM  */}
-
-                        <View style={styles.tituloSection}>
-                            <Text> Carga Horária Mensal </Text>
-                        </View>
+                                    <View style={styles.tituloSection}>
+                                        <Text> Carga Horária Diária </Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={(text) => { this.setState({ chDaily: text, hasChanged: true }) }}
+                                        value={this.state.chDaily}
+                                    />
 
 
 
+                                    {/**  linha CHM  */}
 
-                        {/** BOTAO DE SUBMETER TUDO */}
-                        <TouchableOpacity
-                            onPress={this.submitButton}
-                            style={styles.buttonView}
-                            activeOpacity={0.6}
-                        >
-                            <Text>
+                                    <View style={styles.tituloSection}>
+                                        <Text> Carga Horária Mensal </Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={(text) => { this.setState({ chMonthly: text, hasChanged: true }) }}
+                                        value={this.state.chMonthly}
+                                    />
 
-                                Atualizar Cadastro
+
+
+                                    {/** BOTAO DE SUBMETER TUDO */}
+                                    <TouchableOpacity
+                                        onPress={this.submitButton}
+                                        style={styles.buttonView}
+                                        activeOpacity={0.6}
+                                    >
+                                        <Text>
+
+                                            Atualizar Cadastro
                             </Text>
-                        </TouchableOpacity>
+                                    </TouchableOpacity>
 
 
-                    </ScrollView>
+                                </ScrollView>
 
-                </View>
+                            </View>
 
+                        </View>
+                }
             </View>
         )
     }
@@ -287,6 +324,10 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         paddingVertical: h(1),
         fontSize: totalSize(2.1),
+    },
+    input: {
+        marginVertical: h(1.4),
+        backgroundColor: '#e3e3e3',
     },
 })
 

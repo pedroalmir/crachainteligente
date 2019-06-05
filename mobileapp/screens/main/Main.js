@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 
-import { StyleSheet, SectionList, ScrollView, TouchableOpacity, TouchableHighlight, Platform, Image, Text, View } from 'react-native'
+import { StyleSheet, SectionList, ScrollView, TouchableOpacity, ActivityIndicator, ToastAndroid, Platform, Image, Text, View } from 'react-native'
 
 import { w, h, totalSize } from '../../api/Dimensions';
-import { Registro } from './Registro';
+
 import { Ionicons } from '@expo/vector-icons';
 import Styles from '../../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
-import MyFirebase from '../../api/MyFirebase';
+import firebase from '../../api/MyFirebase';
 
 /**
  * 
@@ -33,9 +33,9 @@ export default class Main extends Component {
       chDaily: 8,
       chMonthly: 44,
       lastAction: "output",
-      registers: [],
       user: {
       },
+      registers: [],
       horas: 8,
       minutos: 0,
       segundos: 0,
@@ -43,31 +43,44 @@ export default class Main extends Component {
       minutosUp: 0,
       segundosUp: 0,
       textButton: "Fazer login",
+
+      isLoadingRegisters: true,
+      isLoadingUser: true,
     };
 
   }
 
   componentDidMount() {
 
-    //pegando o usuario atual no firebase advindo da loading... FOI O UNICO JEITO QUE FUNCIONOU!
-    u =  this.props.user;
-    reg = this.props.registers;
+    this.syncUser();
+    this.syncRegisters();
 
-    console.log("na main: user: ", u);
-    console.log("na main: registers: ", reg);
-/**
- * 
- */
- this.setState({
-   name: JSON.parse(u).name,
-   email: JSON.parse(u).email,
-   phone: JSON.parse(u).phone,
-      role: JSON.parse(u).role,
-      chDaily: JSON.parse(u).chDaily,
-      chMonthly: JSON.parse(u).chMonthly,
-      pic: JSON.parse(u).pic,
-      registers: JSON.parse(u).registers
-    });
+  }
+
+  /**
+   * Quando a main inicia ela deve carregar a info do usuario
+   */
+  syncUser = async () => {
+    firebase.readInfo().then(value => {
+      console.log("Loading User:", value);
+      this.setState({ user: value, isLoadingUser: false })
+    }).catch(error => {
+      ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+      console.log(error);
+    })
+
+  }
+  /**
+   * Quando a main inicia ela deve carregar a info do usuario
+   */
+  syncRegisters = async () => {
+    firebase.readRegisters().then(value => {
+      console.log("Loading Registers:", value);
+      this.setState({ registers: value? value:[], isLoadingRegisters: false })
+    }).catch(error => {
+      ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+      console.log(error);
+    })
 
   }
 
@@ -136,7 +149,7 @@ export default class Main extends Component {
       var fullData = new Date();
 
       // dd/mm/yy que sera inserida como chave
-      today = fullData.getDay() + '-' + fullData.getMonth() + '-' + fullData.getUTCFullYear();
+      today = fullData.getDay() + '-' + fullData.getMonth() + '-' + fullData.getUTCFullYear() + " ";
 
       // action: hh/mm/ss que será o value do today
       hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
@@ -145,20 +158,37 @@ export default class Main extends Component {
       reg.push("Entrada: " + hora)
 
       this.setState({
-         registers: reg, 
-         lastAction: "input", 
-         isRegister: false, 
-         textButton: "Fazer logout" 
-        });
+        registers: reg,
+        lastAction: "input",
+        isRegister: false,
+        textButton: "Fazer logout"
+      });
 
-      MyFirebase.updateRegister(today + hora)
+      firebase.updateRegister(today + hora)
 
     } else {
       // parando o intervalo...
-      lastAction = "output"
+      lastAction = "input"
       clearInterval(this.countdown)
 
-      
+      // dd/mm/yy que sera inserida como chave
+      today = fullData.getDay() + '-' + fullData.getMonth() + '-' + fullData.getUTCFullYear() + " ";
+
+      // action: hh/mm/ss que será o value do today
+      hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+
+      reg = this.state.registers;
+      reg.push("Entrada: " + hora)
+
+      this.setState({
+        registers: reg,
+        lastAction: "output",
+        isRegister: true,
+        textButton: "Fazer login"
+      });
+
+      // fazer um update lastAction
+      firebase.updateRegister(today + hora)
     }
 
   }
@@ -180,114 +210,124 @@ export default class Main extends Component {
     //console.log(global.firebase.auth())
 
     return (
-      <View style={Styles.container.container}>
-
-        <LinearGradient
-          colors={['#4c669f', '#3b5998', '#192f6a']}
-          style={styles.mainContainer}>
-          {/** Menu Icon */}
-          <Ionicons
-            onPress={() => { this.props.navigation.openDrawer(); }}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: 'rgba(255,255,255,0)',
-              alignItems: 'flex-start',
-              alignSelf: "flex-start",
-              marginHorizontal: 10
-            }}
-            name="ios-menu" size={Styles.fWidth(32)} color="#fefefe"
-          />
-
-          <Image
-            style={{
-              width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth(140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
-            }}
-          source={this.state.pic ? this.state.pic : require("../../assets/person.png")}
-          />
-
-          <Text style={styles.titulo1White}> {this.state.name}</Text>
-          <Text style={styles.titulo2White}> {this.state.role}</Text>
-
-          <View style={[{ flexDirection: "row", flex: 1, alignItems: "center", marginTop: 0 }]}>
-            <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
-              <Text style={styles.numeroDestaqueWhite}>
-                {this.state.horasUp <= 9 ? '0' + this.state.horasUp : this.state.horasUp}:{this.state.minutosUp <= 9 ? '0' + this.state.minutosUp : this.state.minutosUp}:{this.state.segundosUp <= 9 ? '0' + this.state.segundosUp : this.state.segundosUp}
-              </Text>
-
-              <Text style={styles.titulo2White}> Horas Trabalhadas </Text>
+      <View style={{flex:1}}>
+        {
+          this.state.isLoadingRegisters || this.state.isLoadingUser
+            ? 
+            <View style={{ alignItems: "center", justifyContent: 'center', flex: 1 }}>
+              <ActivityIndicator size="large" style={[styles.spinner, { alignSelf: "center" }]} color='black' />
             </View>
 
+            : <View style={Styles.container.container}>
 
-            <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
-              <Text style={styles.numeroDestaqueWhite}>
-                {this.state.horas <= 9 ? '0' + this.state.horas : this.state.horas}:{this.state.minutos <= 9 ? '0' + this.state.minutos : this.state.minutos}:{this.state.segundos <= 9 ? '0' + this.state.segundos : this.state.segundos}
-              </Text>
-              <Text style={styles.titulo2White}> Tempo Restante </Text>
-            </View>
-          </View>
+              <LinearGradient
+                colors={['#4c669f', '#3b5998', '#192f6a']}
+                style={styles.mainContainer}>
+                {/** Menu Icon */}
+                <Ionicons
+                  onPress={() => { this.props.navigation.openDrawer(); }}
+                  style={{
+                    justifyContent: 'flex-start',
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    alignItems: 'flex-start',
+                    alignSelf: "flex-start",
+                    marginHorizontal: 10
+                  }}
+                  name="ios-menu" size={Styles.fWidth(32)} color="#fefefe"
+                />
 
-        </LinearGradient>
+                <Image
+                  style={{
+                    width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth(140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
+                  }}
+                  source={this.state.user.pic ? this.state.user.pic : require("../../assets/person.png")}
+                />
 
-        <View style={{ padding: 10 }}>
-          <View>
-            <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: Styles.fWidth(18), color: Styles.color.cinza, padding: 8 }}>
-              registers do dia
+                <Text style={styles.titulo1White}> {this.state.user.name}</Text>
+                <Text style={styles.titulo2White}> {this.state.user.role}</Text>
+
+                <View style={[{ flexDirection: "row", flex: 1, alignItems: "center", marginTop: 0 }]}>
+                  <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
+                    <Text style={styles.numeroDestaqueWhite}>
+                      {this.state.horasUp <= 9 ? '0' + this.state.horasUp : this.state.horasUp}:{this.state.minutosUp <= 9 ? '0' + this.state.minutosUp : this.state.minutosUp}:{this.state.segundosUp <= 9 ? '0' + this.state.segundosUp : this.state.segundosUp}
+                    </Text>
+
+                    <Text style={styles.titulo2White}> Horas Trabalhadas </Text>
+                  </View>
+
+
+                  <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
+                    <Text style={styles.numeroDestaqueWhite}>
+                      {this.state.horas <= 9 ? '0' + this.state.horas : this.state.horas}:{this.state.minutos <= 9 ? '0' + this.state.minutos : this.state.minutos}:{this.state.segundos <= 9 ? '0' + this.state.segundos : this.state.segundos}
+                    </Text>
+                    <Text style={styles.titulo2White}> Tempo Restante </Text>
+                  </View>
+                </View>
+
+              </LinearGradient>
+
+              <View style={{ padding: 10 }}>
+                <View>
+                  <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: Styles.fWidth(18), color: Styles.color.cinza, padding: 8 }}>
+                    Registros do dia
             </Text>
-          </View>
+                </View>
 
 
 
 
-          {/** SECTION List Com os registers do funcionario */}
+                {/** SECTION List Com os registers do funcionario */}
 
 
 
 
-          <ScrollView style={{ height: h(20) }}>
+                <ScrollView style={{ height: h(20) }}>
 
-            <SectionList
-              contentContainerStyle={{
-                alignItems: "flex-start"
-              }}
-              style=
-              {{
-                marginTop: 0,
-                paddingHorizontal: 15,
-                marginBottom: 15,
-              }}
-              renderItem={
-                ({ item, index, section }) =>
-                  (
-                    <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
-                      <Text
-                        style={{ fontSize: Styles.fWidth(18), color: Styles.color.cinza, marginHorizontal: 20 }} key={index}>
-                        {item}
-                      </Text>
-                    </View>
-                  )
-              }
-              renderSectionHeader={
-                ({ section: { title } }) => (
-                  <Text
-                    style={{ color: Styles.color.cinzaEscuro, fontWeight: '800' }}>{title}
-                  </Text>
-                )
-              }
-              sections={this.state.registers ? this.state.registers : []}
-              keyExtractor={(item, index) => item + index}
-            />
-          </ScrollView>
+                  <SectionList
+                    contentContainerStyle={{
+                      alignItems: "flex-start"
+                    }}
+                    style=
+                    {{
+                      marginTop: 0,
+                      paddingHorizontal: 15,
+                      marginBottom: 15,
+                    }}
+                    renderItem={
+                      ({ item, index, section }) =>
+                        (
+                          <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
+                            <Text
+                              style={{ fontSize: Styles.fWidth(18), color: Styles.color.cinza, marginHorizontal: 20 }} key={index}>
+                              {item}
+                            </Text>
+                          </View>
+                        )
+                    }
+                    renderSectionHeader={
+                      ({ section: { title } }) => (
+                        <Text
+                          style={{ color: Styles.color.cinzaEscuro, fontWeight: '800' }}>{title}
+                        </Text>
+                      )
+                    }
+                    sections={this.state.registers ? this.state.registers : []}
+                    keyExtractor={(item, index) => item + index}
+                  />
+                </ScrollView>
 
-          {/** Botao de fazer check-in */}
-          <TouchableOpacity
-            onPress={this.setTextButton}
-            style={styles.buttonView}
-            activeOpacity={0.6}
-          >
-            <Text style={styles.textButton}>{this.state.textButton}</Text>
-          </TouchableOpacity>
-        </View>
+                {/** Botao de fazer check-in */}
+                <TouchableOpacity
+                  onPress={this.setTextButton}
+                  style={styles.buttonView}
+                  activeOpacity={0.6}
+                >
+                  <Text style={styles.textButton}>{this.state.textButton}</Text>
+                </TouchableOpacity>
+              </View>
 
+            </View>
+        }
       </View>
     )
   }

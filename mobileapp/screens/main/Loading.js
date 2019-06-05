@@ -12,33 +12,20 @@ export default class Loading extends Component {
     constructor(props){
         super(props);
         this.state = {
-            isLoadingInfo: true,
-            isLoadingReg: true,
-            user: null,
-            registers: [],
+            isLoading: true,
+            user: null
         }
     }
 
     componentDidMount() {
         console.log("....loading....")
         this.syncUser();
-        this.syncRegisters();
     }
 
     syncUser = async () => {
         firebase.readInfo().then(value => {
-            console.log("Loading info:", value);
-            this.setState({user: JSON.stringify(value), isLoadingInfo: false})
-        }).catch(error => {
-            ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-            console.log(error);
-        })
-
-    }
-    syncRegisters = async () => {
-        firebase.readRegisters().then(value => {
-            console.log("Loading Registers:", value);
-            this.setState({registers: value, isLoadingReg: false})
+            console.log("Loading :", value);
+            this.setState({user: value, isLoading: false})
         }).catch(error => {
             ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
             console.log(error);
@@ -48,10 +35,10 @@ export default class Loading extends Component {
 
     render() {
         return (
-            <View style={{ alignContent: "center", justifyContent: 'center', flex:1 }}>
-                {this.state.isLoadingInfo || this.state.isLoadingReg
+            <View style={{ alignContent: "center", justifyContent: 'center' }}>
+                {this.state.isLoading
                     ? <ActivityIndicator size="large" style={[styles.spinner, { alignSelf: "center" }]} color='black' />
-                    : <Main user={this.state.user} registers={this.state.registers} />
+                    : <Main user={this.state.user} />
                 }
             </View>
         );
