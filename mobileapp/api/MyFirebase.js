@@ -195,7 +195,7 @@ class MyFirebase {
             }).then(res => {
 
               // criando os registros dele
-              firebase.database().ref(email.hashCode() + '/registers').set({
+              firebase.database().ref(email.hashCode()).set({
                 registers: []
               }).then(res => {
 
