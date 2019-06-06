@@ -50,8 +50,11 @@ export default class Main extends Component {
 
   }
 
+  line = "______________________________";
+
   componentDidMount() {
 
+    console.log(this.line)
     this.syncUser();
     this.syncRegisters();
     

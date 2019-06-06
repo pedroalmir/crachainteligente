@@ -20,6 +20,8 @@ export default class ProfileScreen extends Component {
         header: null,
     };
 
+    line = "______________________________";
+
     constructor(props) {
         super(props);
         this.state = {
@@ -28,8 +30,9 @@ export default class ProfileScreen extends Component {
             isRegister: true,
 
             name: "Terry Crews",
+            phone: "8588776655",
             email: "terry.crews@great.ufc.br",
-            pic: require("../assets/person.jpg"),
+            pic: require("../assets/person.png"),
             role: "Analista de Sistemas",
             chDaily: 8,
             chMonthly: 44,
@@ -58,13 +61,23 @@ export default class ProfileScreen extends Component {
     */
 
     componentDidMount() {
+        console.log(this.line)
         this.syncUser();
     }
 
     syncUser = async () => {
         firebase.readInfo().then(value => {
-            console.log("Loading User:", value);
-            this.setState({ user: value, isLoadingUser: false })
+            console.log("Loading User in Profile:", value);
+            this.setState({
+                name: value.name,
+                phone: value.phone,
+                email: value.email,
+                pic: value.pic? value.pic: require("../assets/person.png"),
+                role: value.role,
+                chDaily: value.chDaily,
+                chMonthly: value.chMonthly,
+                isLoadingUser: false
+            })
         }).catch(error => {
             ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
             console.log(error);
@@ -102,6 +115,7 @@ export default class ProfileScreen extends Component {
 
             firebase.updateInfo({
                 name: this.state.name,
+                email: this.state.email,
                 role: this.state.role,
                 phone: this.state.phone,
                 chDaily: this.state.chDaily,
@@ -148,7 +162,7 @@ export default class ProfileScreen extends Component {
                                     name="ios-menu" size={32} color="#fefefe"
                                 />
 
-                                <Image style={{ 
+                                <Image style={{
                                     width: Styles.fWidth(140),
                                     height: Styles.fHeight(140),
                                     borderRadius: Styles.fWidth(140 / 2),

@@ -46,13 +46,9 @@ class MyFirebase {
 
     return new Promise(resolve => {
 
-      this.email = info.email;
+      firebase.database().ref(info.email.hashCode() + '/info').update({
 
-      firebase.database().ref(this.email.hashCode() + '/info').update({
-
-        email: info.email,
         name: info.name,
-        lastAction: info.lastAction,
         chDaily: info.chDaily,
         chMonthly: info.chMonthly,
         pic: info.pic,
