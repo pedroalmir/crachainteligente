@@ -148,7 +148,7 @@ export default class ProfileScreen extends Component {
                                     name="ios-menu" size={32} color="#fefefe"
                                 />
 
-                                <Image style={{
+                                <Image style={{ 
                                     width: Styles.fWidth(140),
                                     height: Styles.fHeight(140),
                                     borderRadius: Styles.fWidth(140 / 2),
@@ -248,9 +248,8 @@ export default class ProfileScreen extends Component {
                                         activeOpacity={0.6}
                                     >
                                         <Text>
-
                                             Atualizar Cadastro
-                            </Text>
+                                        </Text>
                                     </TouchableOpacity>
 
 

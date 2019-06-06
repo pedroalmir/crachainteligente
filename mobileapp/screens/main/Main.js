@@ -54,7 +54,24 @@ export default class Main extends Component {
 
     this.syncUser();
     this.syncRegisters();
+    
 
+  }
+
+  listenForRegisters() {
+    firebase.getRef().on('value', (snap) => {
+
+      // get children as an array
+      var items = [];
+      snap.forEach((child) => {
+        items.push(child.val());
+      });
+
+      this.setState({
+        registers: this.state.registers.cloneWithRows(items)
+      });
+
+    });
   }
 
   /**
@@ -63,7 +80,7 @@ export default class Main extends Component {
   syncUser = async () => {
     firebase.readInfo().then(value => {
       console.log("Loading User:", value);
-      this.setState({ user: value, isLoadingUser: false })
+      this.setState({ user: value, isLoadingUser: false, isRegister: value.lastAction === "input" })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       console.log(error);
@@ -74,9 +91,16 @@ export default class Main extends Component {
    * Quando a main inicia ela deve carregar a info do usuario
    */
   syncRegisters = async () => {
-    firebase.readRegisters().then(value => {
+    var fullData = new Date();
+
+    console.log(fullData)
+    // dd/mm/yy que sera inserida como chave
+    today = firebase.getFormatedDate();
+    console.log("syncReg:",today)
+
+    firebase.readRegisters(today).then(value => {
       console.log("Loading Registers:", value);
-      this.setState({ registers: value? value:[], isLoadingRegisters: false })
+      this.setState({ registers: value ? value : [], isLoadingRegisters: false })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       console.log(error);
@@ -149,10 +173,10 @@ export default class Main extends Component {
       var fullData = new Date();
 
       // dd/mm/yy que sera inserida como chave
-      today = fullData.getDay() + '-' + fullData.getMonth() + '-' + fullData.getUTCFullYear() + " ";
+      today = firebase.getFormatedDate()
 
       // action: hh/mm/ss que será o value do today
-      hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+      hora = firebase.getFormatedTime()
 
       reg = this.state.registers;
       reg.push("Entrada: " + hora)
@@ -164,6 +188,7 @@ export default class Main extends Component {
         textButton: "Fazer logout"
       });
 
+      // ok with this
       firebase.updateRegister(today + hora)
 
     } else {
@@ -172,10 +197,10 @@ export default class Main extends Component {
       clearInterval(this.countdown)
 
       // dd/mm/yy que sera inserida como chave
-      today = fullData.getDay() + '-' + fullData.getMonth() + '-' + fullData.getUTCFullYear() + " ";
+      today = firebase.getFormatedDate()
 
       // action: hh/mm/ss que será o value do today
-      hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+      hora = firebase.getFormatedTime()
 
       reg = this.state.registers;
       reg.push("Entrada: " + hora)
@@ -210,16 +235,16 @@ export default class Main extends Component {
     //console.log(global.firebase.auth())
 
     return (
-      <View style={{flex:1}}>
+      <View style={{ flex: 1 }}>
         {
           this.state.isLoadingRegisters || this.state.isLoadingUser
-            ? 
+            ?
             <View style={{ alignItems: "center", justifyContent: 'center', flex: 1 }}>
               <ActivityIndicator size="large" style={[styles.spinner, { alignSelf: "center" }]} color='black' />
             </View>
 
-            : <View style={Styles.container.container}>
-
+            : <View style={Styles.container.container}> 
+ 
               <LinearGradient
                 colors={['#4c669f', '#3b5998', '#192f6a']}
                 style={styles.mainContainer}>

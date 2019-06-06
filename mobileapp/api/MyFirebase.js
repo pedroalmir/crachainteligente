@@ -32,6 +32,12 @@ class MyFirebase {
     });
   }
 
+  getRef() {
+    return firebase.database().ref();
+  }
+
+
+
   /**
    * Updates the new Info to the database
    * @param {*} info 
@@ -62,6 +68,23 @@ class MyFirebase {
       });
     })
   }
+  getFormatedTime = () => {
+    var fullData = new Date();
+
+    // action: hh/mm/ss que será o value do today
+    hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+
+    return hora;
+  }
+
+  getFormatedDate = () => {
+    var fullData = new Date();
+
+    // dd/mm/yy que sera inserida como chave
+    today = fullData.getDate() + '/' + fullData.getUTCMonth() + '/' + fullData.getUTCFullYear() + " ";
+
+    return today;
+  }
 
 
   /**
@@ -86,10 +109,35 @@ class MyFirebase {
    * Returns all the registers from firebase
    * @param {*} email 
    */
-  readRegisters() {
+  readRegisters(today) {
+    console.log("na readRegisters, today:", today);
     return new Promise(resolve => {
+      /**
+      var ref = firebase.database().ref(this.email.hashCode).child('registers');
+      ref.orderByKey().once("value", function (snapshot) {
+        console.log(snapshot.key, snapshot.val());
+        resolve(snapshot.val())
+      });
+      firebase.database().ref(this.email.hashCode + '/registers').orderByValue().limitToLast(1).on("value", function (snapshot) {
+        snapshot.forEach(function (data) {
+          console.log("Key " + data.key + ", value " + data.val());
+          resolve(data.val());
+        });
+      });
 
+      firebase.database().ref().orderByChild(this.email.hashCode + '/registers')
+        .startAt(today)
+        .once('value', snapshot => {
+          resolve(snapshot.val())
+        }).catch(err => {
+          resolve(null)
+          console.log("Erro na readRegisters: ", err)
+        })
+
+        * 
+       */
       firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
+        console.log(snapshot)
         resolve(snapshot.val())
       }).catch(err => {
         resolve(null)
@@ -204,11 +252,11 @@ class MyFirebase {
                 console.log("Update and save")
                 resolve(true);
               })
-              .catch(err => {
-                console.log("erro ao cadastrar os registros", err)
-                resolve(false);
-              });
-              
+                .catch(err => {
+                  console.log("erro ao cadastrar os registros", err)
+                  resolve(false);
+                });
+
             }).catch(err => {
               console.log("erro ao cadastrar a info", err)
               resolve(false);
