@@ -189,6 +189,8 @@ export default class ProfileScreen extends Component {
                                 }}>
 
 
+                                    
+                                    
                                     {/**  linha EMAIL  */}
 
                                     <View style={styles.tituloSection}>
@@ -199,6 +201,18 @@ export default class ProfileScreen extends Component {
                                         onChangeText={(text) => { }}
                                         editable={false}
                                         value={this.state.email}
+                                    />
+
+                                    
+                                    {/**  linha Name  */}
+
+                                    <View style={styles.tituloSection}>
+                                        <Text> Nome </Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={(text) => { this.setState({ name: text, hasChanged: true }) }}
+                                        value={this.state.name}
                                     />
 
 

@@ -145,6 +145,7 @@ class MyFirebase {
 
   /**
    * Saves the new register to the database
+   * ERRO AQUI
    * @param {*} reg 
    */
   updateRegister(reg) {

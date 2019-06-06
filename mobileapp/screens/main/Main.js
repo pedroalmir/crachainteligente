@@ -57,7 +57,7 @@ export default class Main extends Component {
     console.log(this.line)
     this.syncUser();
     this.syncRegisters();
-    
+
 
   }
 
@@ -92,6 +92,7 @@ export default class Main extends Component {
   }
   /**
    * Quando a main inicia ela deve carregar a info do usuario
+   * Formato do registro: dd/mm/yyyy hh:mm:ss
    */
   syncRegisters = async () => {
     var fullData = new Date();
@@ -99,11 +100,35 @@ export default class Main extends Component {
     console.log(fullData)
     // dd/mm/yy que sera inserida como chave
     today = firebase.getFormatedDate();
-    console.log("syncReg:",today)
+    console.log("syncReg:", today)
 
     firebase.readRegisters(today).then(value => {
-      console.log("Loading Registers:", value);
-      this.setState({ registers: value ? value : [], isLoadingRegisters: false })
+      console.log("Loading Registers:", Object.values(value))
+
+
+      // formatando a data de hoje como regex
+      today = firebase.getFormatedDate().replace(/\//g, "-");
+      console.log("regex today", today)
+
+      regs = [];
+      Object.values(value).forEach(child => {
+        // para cada registro, pegar que tiver a data de hoje e cortar o dia
+        child = child.replace(/\//g, '-');
+        
+        // se o registro for de hoje, adicione aos registros do app
+        if(child.match(new RegExp(today, 'g'))){
+          regs.push(child.split(" ")[1]);
+        }
+      });
+
+      console.log("registros apos proc:", regs)
+
+      //console.log(JSON.parse(JSON.stringify(value)) )
+
+      this.setState({
+        //registers: regs, QUEBRA AQUI, NAO SEI PQ!
+        isLoadingRegisters: false
+      })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       console.log(error);
@@ -173,8 +198,6 @@ export default class Main extends Component {
       // setando o intervalo
       this.countdown = setInterval(this.timer, 1000);
 
-      var fullData = new Date();
-
       // dd/mm/yy que sera inserida como chave
       today = firebase.getFormatedDate()
 
@@ -196,8 +219,9 @@ export default class Main extends Component {
 
     } else {
       // parando o intervalo...
-      lastAction = "input"
       clearInterval(this.countdown)
+      // setando o intervalo
+      this.countdown = setInterval(this.timer, 1000);
 
       // dd/mm/yy que sera inserida como chave
       today = firebase.getFormatedDate()
@@ -206,16 +230,16 @@ export default class Main extends Component {
       hora = firebase.getFormatedTime()
 
       reg = this.state.registers;
-      reg.push("Entrada: " + hora)
+      reg.push("Saída: " + hora)
 
       this.setState({
         registers: reg,
         lastAction: "output",
-        isRegister: true,
+        isRegister: false,
         textButton: "Fazer login"
       });
 
-      // fazer um update lastAction
+      // ok with this
       firebase.updateRegister(today + hora)
     }
 
@@ -246,8 +270,8 @@ export default class Main extends Component {
               <ActivityIndicator size="large" style={[styles.spinner, { alignSelf: "center" }]} color='black' />
             </View>
 
-            : <View style={Styles.container.container}> 
- 
+            : <View style={Styles.container.container}>
+
               <LinearGradient
                 colors={['#4c669f', '#3b5998', '#192f6a']}
                 style={styles.mainContainer}>
