@@ -8,7 +8,6 @@ import Styles from '../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 
 import firebase from '../api/MyFirebase'
-import InputField from '../components/InputField';
 
 /**
  * Precisa de uma função que recebe os registros e gera os meses em que ele trabalhou 

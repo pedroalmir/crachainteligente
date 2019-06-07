@@ -24,7 +24,6 @@ export default class Main extends Component {
     super(props);
     this.state = {
       currentUser: null,
-      isRegister: true,
       name: "Terry Crews",
       email: "terry.crews@great.ufc.br",
       pic: require("../../assets/person.jpg"),
@@ -43,6 +42,7 @@ export default class Main extends Component {
       minutosUp: 0,
       segundosUp: 0,
       textButton: "Fazer login",
+      isRegister: true,
 
       isLoadingRegisters: true,
       isLoadingUser: true,
@@ -50,7 +50,7 @@ export default class Main extends Component {
 
   }
 
-  line = "______________________________";
+  line = "\n______________________________\n";
 
   componentDidMount() {
 
@@ -82,7 +82,7 @@ export default class Main extends Component {
    */
   syncUser = async () => {
     firebase.readInfo().then(value => {
-      console.log("Loading User:", value);
+      console.log(this.line, "sync User:", value);
       this.setState({ user: value, isLoadingUser: false, isRegister: value.lastAction === "input" })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
@@ -100,10 +100,9 @@ export default class Main extends Component {
     console.log(fullData)
     // dd/mm/yy que sera inserida como chave
     today = firebase.getFormatedDate();
-    console.log("syncReg:", today)
 
     firebase.readRegisters(today).then(value => {
-      console.log("Loading Registers:", Object.values(value))
+      console.log(this.line, "Loading Registers:", Object.values(value))
 
 
       // formatando a data de hoje como regex
@@ -114,25 +113,82 @@ export default class Main extends Component {
       Object.values(value).forEach(child => {
         // para cada registro, pegar que tiver a data de hoje e cortar o dia
         child = child.replace(/\//g, '-');
-        
+
         // se o registro for de hoje, adicione aos registros do app
-        if(child.match(new RegExp(today, 'g'))){
+        if (child.match(new RegExp(today, 'g'))) {
           regs.push(child.split(" ")[1]);
         }
       });
 
-      console.log("registros apos proc:", regs)
+      console.log("registros apos proc:", regs, this.line)
 
       //console.log(JSON.parse(JSON.stringify(value)) )
 
       this.setState({
-        //registers: regs, QUEBRA AQUI, NAO SEI PQ!
+        registers: regs, //QUEBRA AQUI, NAO SEI PQ!
         isLoadingRegisters: false
       })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       console.log(error);
     })
+
+  }
+
+
+  /**
+   * Callback for When the login / logout button is pressed
+   */
+  setTextButton = () => {
+
+    // se estiver entrando
+
+    if (this.state.isRegister) {
+      // parando o intervalo...
+      clearInterval(this.countdown)
+      
+      // action: hh/mm/ss que será o value do today
+      var fullData = new Date();
+
+      // action: hh/mm/ss que será o value do today
+      const hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+      console.log("hora before:", hora)
+
+      const reg = this.state.registers;
+      console.log("registers before:", reg)
+      reg.push("Entrada: " + hora)
+
+      this.setState({
+        registers: reg,
+        lastAction: "input",
+        isRegister: false,
+        textButton: "Fazer Login"
+      });
+
+      firebase.updateLastAction("input")
+      // ok with this
+      firebase.updateRegister(today + hora)
+
+    } else {
+      this.countdown = setInterval(this.timer, 1000);
+
+      // action: hh/mm/ss que será o value do today
+      const hora = firebase.getFormatedTime()
+
+      const reg = this.state.registers;
+      reg.push("Saída: " + hora)
+
+      this.setState({
+        registers: reg,
+        lastAction: "output",
+        isRegister: true,
+        textButton: "Fazer Logout"
+      });
+
+      firebase.updateLastAction("output")
+      // ok with this
+      firebase.updateRegister(today + hora)
+    }
 
   }
 
@@ -187,63 +243,6 @@ export default class Main extends Component {
 
 
 
-  /**
-   * Callback for When the login / logout button is pressed
-   */
-  setTextButton = () => {
-
-    // se estiver entrando
-
-    if (this.state.isRegister) {
-      // setando o intervalo
-      this.countdown = setInterval(this.timer, 1000);
-
-      // dd/mm/yy que sera inserida como chave
-      today = firebase.getFormatedDate()
-
-      // action: hh/mm/ss que será o value do today
-      hora = firebase.getFormatedTime()
-
-      reg = this.state.registers;
-      reg.push("Entrada: " + hora)
-
-      this.setState({
-        registers: reg,
-        lastAction: "input",
-        isRegister: false,
-        textButton: "Fazer logout"
-      });
-
-      // ok with this
-      firebase.updateRegister(today + hora)
-
-    } else {
-      // parando o intervalo...
-      clearInterval(this.countdown)
-      // setando o intervalo
-      this.countdown = setInterval(this.timer, 1000);
-
-      // dd/mm/yy que sera inserida como chave
-      today = firebase.getFormatedDate()
-
-      // action: hh/mm/ss que será o value do today
-      hora = firebase.getFormatedTime()
-
-      reg = this.state.registers;
-      reg.push("Saída: " + hora)
-
-      this.setState({
-        registers: reg,
-        lastAction: "output",
-        isRegister: false,
-        textButton: "Fazer login"
-      });
-
-      // ok with this
-      firebase.updateRegister(today + hora)
-    }
-
-  }
 
   /**
    * Callback checking every second if the zero second was reached. If true, reformat the time
@@ -260,6 +259,22 @@ export default class Main extends Component {
   render() {
     //const { currentUser } = this.state;
     //console.log(global.firebase.auth())
+    let adiciona_registers = this.state.registers.map((reg, index) => {
+      return (
+        <View key={reg.chave} pass_in_reg={reg}>
+
+          <View style={{
+            alignItems: 'flex-start', 
+            borderTopWidth: 1, borderTopColor: Styles.color.cinzaClaro, marginLeft: 10
+          }}>
+              <Text style={[Styles.text.subtitle, { color: Styles.color.cinza, marginLeft: 0, padding: 10, fontSize: 19 }]}>
+                {reg}
+              </Text>
+
+          </View>
+        </View>
+      )
+    });
 
     return (
       <View style={{ flex: 1 }}>
@@ -334,11 +349,12 @@ export default class Main extends Component {
 
 
                 <ScrollView style={{ height: h(20) }}>
+                  {adiciona_registers}
 
+                  {/**
+                
                   <SectionList
-                    contentContainerStyle={{
-                      alignItems: "flex-start"
-                    }}
+                    contentContainerStyle={{ alignItems: "flex-start" }}
                     style=
                     {{
                       marginTop: 0,
@@ -363,10 +379,12 @@ export default class Main extends Component {
                         </Text>
                       )
                     }
-                    sections={this.state.registers ? this.state.registers : []}
+                    sections={this.state.registers}
                     keyExtractor={(item, index) => item + index}
                   />
+                  */}
                 </ScrollView>
+
 
                 {/** Botao de fazer check-in */}
                 <TouchableOpacity

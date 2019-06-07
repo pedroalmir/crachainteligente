@@ -68,7 +68,7 @@ class MyFirebase {
     var fullData = new Date();
 
     // action: hh/mm/ss que será o value do today
-    hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+    const hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
 
     return hora;
   }
@@ -77,9 +77,30 @@ class MyFirebase {
     var fullData = new Date();
 
     // dd/mm/yy que sera inserida como chave
-    today = fullData.getDate() + '/' + fullData.getUTCMonth() + '/' + fullData.getUTCFullYear() + " ";
+    const today = fullData.getDate() + '/' + fullData.getUTCMonth() + '/' + fullData.getUTCFullYear() + " ";
 
     return today;
+  }
+
+  /**
+   * Quando um registro é atualizado, é necessário atualizar a ultima ação do usuário
+   */
+  updateLastAction = (last) => {
+
+    return new Promise(resolve => {
+
+      firebase.database().ref(this.email.hashCode() + '/info').update({
+
+        lastAction: last
+
+      }).then(result => {
+        resolve(true);
+        console.log("last action atualizada:", last);
+      }).catch(error => {
+        resolve(false);
+        console.log("dentro da updateLastAction:", error)
+      });
+    })
   }
 
 
@@ -108,30 +129,7 @@ class MyFirebase {
   readRegisters(today) {
     console.log("na readRegisters, today:", today);
     return new Promise(resolve => {
-      /**
-      var ref = firebase.database().ref(this.email.hashCode).child('registers');
-      ref.orderByKey().once("value", function (snapshot) {
-        console.log(snapshot.key, snapshot.val());
-        resolve(snapshot.val())
-      });
-      firebase.database().ref(this.email.hashCode + '/registers').orderByValue().limitToLast(1).on("value", function (snapshot) {
-        snapshot.forEach(function (data) {
-          console.log("Key " + data.key + ", value " + data.val());
-          resolve(data.val());
-        });
-      });
 
-      firebase.database().ref().orderByChild(this.email.hashCode + '/registers')
-        .startAt(today)
-        .once('value', snapshot => {
-          resolve(snapshot.val())
-        }).catch(err => {
-          resolve(null)
-          console.log("Erro na readRegisters: ", err)
-        })
-
-        * 
-       */
       firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
         console.log(snapshot)
         resolve(snapshot.val())
@@ -153,6 +151,7 @@ class MyFirebase {
     firebase.database().ref(this.email.hashCode() + '/registers')
       .push(reg)
       .then(result => {
+        ToastAndroid.showWithGravityAndOffset('Registro Inserido', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
         console.log("registro atualizado")
       })
       .catch(err => {
