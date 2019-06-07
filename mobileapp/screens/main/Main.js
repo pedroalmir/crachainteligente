@@ -31,7 +31,6 @@ export default class Main extends Component {
       phone: "8588776655",
       chDaily: 8,
       chMonthly: 44,
-      lastAction: "output",
       user: {
       },
       registers: [],
@@ -42,7 +41,6 @@ export default class Main extends Component {
       minutosUp: 0,
       segundosUp: 0,
       textButton: "...",
-      isRegister: true,
 
       isLoadingRegisters: true,
       isLoadingUser: true,
@@ -71,7 +69,7 @@ export default class Main extends Component {
         segundosUp: 0,
         minutosUp: 0,
         horasUp: 0,
-        horas: this.user.chDaily,
+        horas: this.state.user.chDaily,
         minutos: 0,
         segundos: 0,
         isRegister: true,
@@ -80,6 +78,12 @@ export default class Main extends Component {
       })
       return;
     }
+    
+    // last thing was input and then he abandoned. GET NOW
+    if(regs.length%2!=0){
+
+    }
+    
     const last = regs[regs.length - 1];
     const first = regs[0];
 
@@ -99,7 +103,7 @@ export default class Main extends Component {
     //segundos decorridos
     var segUp = l[2] - f[2];
     if (segUp < 0) {
-      segUp = 60 + minUp;
+      segUp = 60 + segUp;
       minUp = minUp - 1;
     }
 
@@ -110,17 +114,17 @@ export default class Main extends Component {
     // 08:00:00
 
     var h = this.state.user.chDaily - hUp - 1;
-    var m = 60 - minUp;
-    var s = 60 - segUp;
+    var m = 59 - minUp;
+    var s = 59 - segUp;
 
     console.log('timer down:', h, m, s);
 
     console.log("last action:", this.state.lastAction)
 
-    for(i=0;i<regs.length;i++){
-      if(i%2==0){
+    for (i = 0; i < regs.length; i++) {
+      if (i % 2 == 0) {
         regs[i] = "Entrada: " + regs[i];
-      }else{
+      } else {
         regs[i] = "Saída: " + regs[i];
       }
     }
@@ -139,7 +143,7 @@ export default class Main extends Component {
     })
 
     // verificar se é necessário rodar o cronometro imediatamente
-    this.state.lastAction === "input" ? clearInterval(this.countdown) : this.countdown = setInterval(this.timer, 1000);
+    this.state.lastAction === "output" ? clearInterval(this.countdown) : this.countdown = setInterval(this.timer, 1000);
 
   }
 
@@ -165,7 +169,7 @@ export default class Main extends Component {
   syncUser = async () => {
     firebase.readInfo().then(value => {
       console.log(this.line, "sync User:", value);
-      this.setState({ user: value, isLoadingUser: false })
+      this.setState({ user: value, isLoadingUser: false, lastAction: value.lastAction })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       console.log(error);
@@ -185,6 +189,18 @@ export default class Main extends Component {
 
     firebase.readRegisters(today).then(value => {
 
+      //se nao tiver registros, criar quando apertar login...
+      if (!value) {
+        this.setState({
+          registers: [],
+        });
+
+        // sincronizando o ultimo registro com os timers
+        this.syncTimer();
+        return;
+      }
+
+      // existem registros
       // formatando a data de hoje como regex
       today = firebase.getFormatedDate().replace(/\//g, "-");
       console.log("regex today", today)
@@ -199,8 +215,6 @@ export default class Main extends Component {
           regs.push(child.split(" ")[1]);
         }
       });
-
-      
 
       console.log("registros de hoje:", regs, this.line)
 
@@ -224,14 +238,11 @@ export default class Main extends Component {
   setTextButton = () => {
 
     // se estiver entrando
+    const today = firebase.getFormatedDate()
 
     if (this.state.isRegister) {
-      // parando o intervalo...
-      clearInterval(this.countdown)
 
-      // action: hh/mm/ss que será o value do today
-      var fullData = new Date();
-
+      this.countdown = setInterval(this.timer, 1000);
       // action: hh/mm/ss que será o value do today
       const hora = firebase.getFormatedTime();
       console.log("hora before:", hora)
@@ -252,7 +263,9 @@ export default class Main extends Component {
       firebase.updateRegister(today + hora)
 
     } else {
-      this.countdown = setInterval(this.timer, 1000);
+      // parando o intervalo...
+      clearInterval(this.countdown)
+
 
       // action: hh/mm/ss que será o value do today
       const hora = firebase.getFormatedTime()
@@ -275,35 +288,52 @@ export default class Main extends Component {
   }
 
   /**
-   * Supondo que o segundo é <= 1
+   * Esta função é chamada somente quando os segundos chegarama zero
    */
 
   reformatTimer = () => {
+    const segundos = 59;
+    const segundosUp = 1;
+
     var minutos = this.state.minutos;
     var minutosUp = this.state.minutosUp;
-    const segundos = 59;
-    const segundosUp = 0;
-    var minutos = minutos - 1;
+
     var horas = this.state.horas;
     var horasUp = this.state.horasUp;
-    if (horas !== this.state.chDaily)
-      var minutosUp = minutosUp + 1;
 
-
-    // sera que acabou uma hora?
-    if (minutos < 0) {
+    if(horas === this.state.user.chDaily){
       horas = horas - 1;
+      minutos = 60;
+      minutosUp = minutosUp - 1;
+    }
+
+    if (minutos <= 0) {
+
       minutos = 59;
-    }
-
-    if (minutosUp > 59) {
-      horasUp = horasUp + 1;
       minutosUp = 0;
-    }
 
-    // será que acabou o expediente? 
-    if (this.state.horas < 0) {
-      clearInterval(this.countdown);
+      horasUp =  horasUp + 1;
+
+
+      // acabou o expediente.
+      if (horasUp < this.state.user.chDaily) {
+
+        horas = horas - 1;
+        
+      } else {
+        const today = firebase.getFormatedDate();
+        const hora = firebase.getFormatedTime();
+
+        clearInterval(this.countdown);
+
+        // ok with this
+        firebase.updateLastAction("output")
+        firebase.updateRegister(today + hora)
+      }
+
+    } else {
+      minutos = minutos - 1;
+      minutosUp = minutosUp + 1;
     }
 
     this.setState({ horas: horas, minutos: minutos, segundos: segundos, horasUp: horasUp, minutosUp: minutosUp, segundosUp: segundosUp })

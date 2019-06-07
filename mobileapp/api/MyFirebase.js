@@ -77,7 +77,8 @@ class MyFirebase {
     var fullData = new Date();
 
     // dd/mm/yy que sera inserida como chave
-    const today = fullData.getDate() + '/' + fullData.getMonth() + '/' + fullData.getUTCFullYear() + " ";
+    mes = fullData.getMonth() + 1;
+    const today = fullData.getDate() + '/' + mes + '/' + fullData.getUTCFullYear() + " ";
 
     return today;
   }
