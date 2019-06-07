@@ -41,7 +41,7 @@ export default class Main extends Component {
       horasUp: 0,
       minutosUp: 0,
       segundosUp: 0,
-      textButton: "Fazer login",
+      textButton: "...",
       isRegister: true,
 
       isLoadingRegisters: true,
@@ -58,6 +58,88 @@ export default class Main extends Component {
     this.syncUser();
     this.syncRegisters();
 
+  }
+
+  syncTimer() {
+
+    console.log(this.line, "sync Timer")
+    var regs = this.state.registers;
+
+    //primeiro acesso?
+    if (regs.length <= 0) {
+      this.setState({
+        segundosUp: 0,
+        minutosUp: 0,
+        horasUp: 0,
+        horas: this.user.chDaily,
+        minutos: 0,
+        segundos: 0,
+        isRegister: true,
+        textButton: "Fazer Login",
+        isLoadingRegisters: false,
+      })
+      return;
+    }
+    const last = regs[regs.length - 1];
+    const first = regs[0];
+
+    const f = first.split(':');
+    const l = last.split(':');
+
+    var hUp = l[0] - f[0];
+
+    //minutos decorridos
+
+    var minUp = l[1] - f[1]
+    if (minUp < 0) {
+      minUp = 60 + minUp;
+      hUp = hUp - 1;
+    }
+
+    //segundos decorridos
+    var segUp = l[2] - f[2];
+    if (segUp < 0) {
+      segUp = 60 + minUp;
+      minUp = minUp - 1;
+    }
+
+    console.log('timer up:', hUp, minUp, segUp)
+
+    // agora, o countdown. Supondo que sempre será um numero inteiro de horas...
+    // 01:34:25
+    // 08:00:00
+
+    var h = this.state.user.chDaily - hUp - 1;
+    var m = 60 - minUp;
+    var s = 60 - segUp;
+
+    console.log('timer down:', h, m, s);
+
+    console.log("last action:", this.state.lastAction)
+
+    for(i=0;i<regs.length;i++){
+      if(i%2==0){
+        regs[i] = "Entrada: " + regs[i];
+      }else{
+        regs[i] = "Saída: " + regs[i];
+      }
+    }
+
+    this.setState({
+      registers: regs,
+      segundosUp: segUp,
+      minutosUp: minUp,
+      horasUp: hUp,
+      horas: h,
+      minutos: m,
+      segundos: s,
+      isRegister: this.state.lastAction === "output",
+      textButton: this.state.lastAction === "output" ? "Fazer Login" : "Fazer Logout",
+      isLoadingRegisters: false,
+    })
+
+    // verificar se é necessário rodar o cronometro imediatamente
+    this.state.lastAction === "input" ? clearInterval(this.countdown) : this.countdown = setInterval(this.timer, 1000);
 
   }
 
@@ -83,7 +165,7 @@ export default class Main extends Component {
   syncUser = async () => {
     firebase.readInfo().then(value => {
       console.log(this.line, "sync User:", value);
-      this.setState({ user: value, isLoadingUser: false, isRegister: value.lastAction === "input" })
+      this.setState({ user: value, isLoadingUser: false })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       console.log(error);
@@ -91,7 +173,7 @@ export default class Main extends Component {
 
   }
   /**
-   * Quando a main inicia ela deve carregar a info do usuario
+   * Quando a main inicia ela deve carregar a info do usuario e seta os timers (not optimal)
    * Formato do registro: dd/mm/yyyy hh:mm:ss
    */
   syncRegisters = async () => {
@@ -102,8 +184,6 @@ export default class Main extends Component {
     today = firebase.getFormatedDate();
 
     firebase.readRegisters(today).then(value => {
-      console.log(this.line, "Loading Registers:", Object.values(value))
-
 
       // formatando a data de hoje como regex
       today = firebase.getFormatedDate().replace(/\//g, "-");
@@ -120,14 +200,16 @@ export default class Main extends Component {
         }
       });
 
-      console.log("registros apos proc:", regs, this.line)
+      
 
-      //console.log(JSON.parse(JSON.stringify(value)) )
+      console.log("registros de hoje:", regs, this.line)
 
       this.setState({
-        registers: regs, //QUEBRA AQUI, NAO SEI PQ!
-        isLoadingRegisters: false
-      })
+        registers: regs,
+      });
+
+      // sincronizando o ultimo registro com os timers
+      this.syncTimer();
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
       console.log(error);
@@ -146,12 +228,12 @@ export default class Main extends Component {
     if (this.state.isRegister) {
       // parando o intervalo...
       clearInterval(this.countdown)
-      
+
       // action: hh/mm/ss que será o value do today
       var fullData = new Date();
 
       // action: hh/mm/ss que será o value do today
-      const hora = fullData.getHours() + ":" + fullData.getMinutes() + ":" + fullData.getSeconds();
+      const hora = firebase.getFormatedTime();
       console.log("hora before:", hora)
 
       const reg = this.state.registers;
@@ -264,12 +346,12 @@ export default class Main extends Component {
         <View key={reg.chave} pass_in_reg={reg}>
 
           <View style={{
-            alignItems: 'flex-start', 
+            alignItems: 'flex-start',
             borderTopWidth: 1, borderTopColor: Styles.color.cinzaClaro, marginLeft: 10
           }}>
-              <Text style={[Styles.text.subtitle, { color: Styles.color.cinza, marginLeft: 0, padding: 10, fontSize: 19 }]}>
-                {reg}
-              </Text>
+            <Text style={[Styles.text.subtitle, { color: Styles.color.cinza, marginLeft: 0, padding: 10, fontSize: 19 }]}>
+              {reg}
+            </Text>
 
           </View>
         </View>
@@ -335,8 +417,8 @@ export default class Main extends Component {
 
               <View style={{ padding: 10 }}>
                 <View>
-                  <Text style={{ marginHorizontal: 20, alignSelf: 'flex-start', fontSize: Styles.fWidth(18), color: Styles.color.cinza, padding: 8 }}>
-                    Registros do dia
+                  <Text style={{ marginHorizontal: 5, alignSelf: 'flex-start', fontSize: Styles.fWidth(18), color: Styles.color.cinzaEscuro, padding: 8 }}>
+                    Registros do Dia:
             </Text>
                 </View>
 
@@ -350,39 +432,6 @@ export default class Main extends Component {
 
                 <ScrollView style={{ height: h(20) }}>
                   {adiciona_registers}
-
-                  {/**
-                
-                  <SectionList
-                    contentContainerStyle={{ alignItems: "flex-start" }}
-                    style=
-                    {{
-                      marginTop: 0,
-                      paddingHorizontal: 15,
-                      marginBottom: 15,
-                    }}
-                    renderItem={
-                      ({ item, index, section }) =>
-                        (
-                          <View style={{ width: w(80), padding: 5, borderBottomColor: Styles.color.cinzaClaro, borderBottomWidth: 1 }}>
-                            <Text
-                              style={{ fontSize: Styles.fWidth(18), color: Styles.color.cinza, marginHorizontal: 20 }} key={index}>
-                              {item}
-                            </Text>
-                          </View>
-                        )
-                    }
-                    renderSectionHeader={
-                      ({ section: { title } }) => (
-                        <Text
-                          style={{ color: Styles.color.cinzaEscuro, fontWeight: '800' }}>{title}
-                        </Text>
-                      )
-                    }
-                    sections={this.state.registers}
-                    keyExtractor={(item, index) => item + index}
-                  />
-                  */}
                 </ScrollView>
 
 

@@ -77,7 +77,7 @@ class MyFirebase {
     var fullData = new Date();
 
     // dd/mm/yy que sera inserida como chave
-    const today = fullData.getDate() + '/' + fullData.getUTCMonth() + '/' + fullData.getUTCFullYear() + " ";
+    const today = fullData.getDate() + '/' + fullData.getMonth() + '/' + fullData.getUTCFullYear() + " ";
 
     return today;
   }
@@ -143,7 +143,6 @@ class MyFirebase {
 
   /**
    * Saves the new register to the database
-   * ERRO AQUI
    * @param {*} reg 
    */
   updateRegister(reg) {
