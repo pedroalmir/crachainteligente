@@ -13,7 +13,7 @@ export default class GetStarted extends Component {
       >
         {this.props.isLogin
           ? <ActivityIndicator size="large" style={styles.spinner} color='black' />
-          : <Text style={styles.text}>FAZER LOGIN</Text>}
+          : <Text style={styles.text}>Fazer Login</Text>}
       </TouchableOpacity>
     );
   }
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     color: '#847e7d',
     fontWeight: '700',
     paddingVertical: h(1),
-    fontSize: totalSize(2.1),
+    fontSize: totalSize(1.8),
   },
   spinner: {
     height: h(5),

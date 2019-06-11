@@ -66,12 +66,12 @@ export default class ProfileScreen extends Component {
 
     syncUser = async () => {
         firebase.readInfo().then(value => {
-            console.log("Loading User in Profile:", value);
+            console.log("Loading User in Profile...");
             this.setState({
                 name: value.name,
                 phone: value.phone,
                 email: value.email,
-                pic: value.pic? value.pic: require("../assets/person.png"),
+                pic: value.pic ? value.pic : require("../assets/person.png"),
                 role: value.role,
                 chDaily: value.chDaily,
                 chMonthly: value.chMonthly,
@@ -130,8 +130,6 @@ export default class ProfileScreen extends Component {
     }
 
     render() {
-        //const { currentUser } = this.state;
-        //console.log(global.firebase.auth())
 
         return (
             <View style={{ flex: 1 }}>
@@ -162,9 +160,9 @@ export default class ProfileScreen extends Component {
                                 />
 
                                 <Image style={{
-                                    width: Styles.fWidth(140),
-                                    height: Styles.fHeight(140),
-                                    borderRadius: Styles.fWidth(140 / 2),
+                                    width: (140),
+                                    height: (140),
+                                    borderRadius: (140 / 2),
                                     borderColor: 'white',
                                     borderWidth: 1,
                                     margin: 10
@@ -177,7 +175,7 @@ export default class ProfileScreen extends Component {
 
                             </LinearGradient>
 
-                            <View style={{ padding: 10 }}>
+                            <View style={{ padding: 10, color: "blue" }}>
 
                                 {/** SECTION List Com os registros do funcionario */}
 
@@ -188,8 +186,8 @@ export default class ProfileScreen extends Component {
                                 }}>
 
 
-                                    
-                                    
+
+
                                     {/**  linha EMAIL  */}
 
                                     <View style={styles.tituloSection}>
@@ -202,7 +200,7 @@ export default class ProfileScreen extends Component {
                                         value={this.state.email}
                                     />
 
-                                    
+
                                     {/**  linha Name  */}
 
                                     <View style={styles.tituloSection}>
@@ -274,7 +272,7 @@ export default class ProfileScreen extends Component {
                                         style={styles.buttonView}
                                         activeOpacity={0.6}
                                     >
-                                        <Text>
+                                        <Text style={styles.textButton}>
                                             Atualizar Cadastro
                                         </Text>
                                     </TouchableOpacity>
@@ -336,24 +334,32 @@ const styles = StyleSheet.create({
 
     },
     buttonView: {
-        width: '85%',
+        width: '100%',
         alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff',
+        paddingVertical: w(2),
+        backgroundColor: 'white',
+        borderColor: '#e3e3e3',
+        borderWidth: 1,
         borderRadius: w(10),
-        padding: h(1.5),
-        marginVertical: h(3),
+        marginTop: h(5),
     },
     textButton: {
-        color: 'white',
+        color: '#847e7d',
         fontWeight: '700',
         paddingVertical: h(1),
-        fontSize: totalSize(2.1),
+        fontSize: totalSize(1.8),
     },
     input: {
         marginVertical: h(1.4),
+        color: Styles.color.cinza,
+        fontSize: totalSize(2.1),
+        height: 60,
+        padding: 10,
+        borderRadius: 25,
         backgroundColor: '#e3e3e3',
+        alignItems: "center",
     },
 })
 

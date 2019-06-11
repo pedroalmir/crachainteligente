@@ -60,7 +60,7 @@ class MyFirebase {
         console.log("dados atualizados");
       }).catch(error => {
         resolve(false);
-        console.log("dentro da updateInfo:", error)
+        console.log("Erro dentro da updateInfo:", error)
       });
     })
   }
@@ -96,7 +96,6 @@ class MyFirebase {
 
       }).then(result => {
         resolve(true);
-        console.log("last action atualizada:", last);
       }).catch(error => {
         resolve(false);
         console.log("dentro da updateLastAction:", error)
@@ -128,11 +127,9 @@ class MyFirebase {
    * @param {*} email 
    */
   readRegisters(today) {
-    console.log("na readRegisters, today:", today);
     return new Promise(resolve => {
 
       firebase.database().ref(this.email.hashCode() + '/registers').once('value', function (snapshot) {
-        console.log(snapshot)
         resolve(snapshot.val())
       }).catch(err => {
         resolve(null)
@@ -189,9 +186,6 @@ class MyFirebase {
           resolve(null);
         }).then(user => {
           if (user) {
-            //nesse trecho temos acesso aos dados do usuario
-            //user2see = user.user.providerData[0]
-            //console.log(user2see)
             resolve(user);
           }
         });
@@ -216,7 +210,7 @@ class MyFirebase {
           default:
             ToastAndroid.showWithGravityAndOffset('Check your internet connection', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
         }
-        console.log("deu errado!")
+        console.log("Erro ao fazer login")
         resolve(false);
       }).then(info => {
 
@@ -243,9 +237,8 @@ class MyFirebase {
                 registers: []
               }).then(res => {
 
-                //por ultimo... sucesso!
                 ToastAndroid.showWithGravityAndOffset('Usuário cadastrado com sucesso', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-                console.log("Update and save")
+                console.log("Usuario cadastrado!")
                 resolve(true);
               })
                 .catch(err => {

@@ -8,7 +8,7 @@ const colors = {
      verdeMusgo : "#135b33",
      verdeFolha : "#218a50",
      branco : '#fdfeff',
-     cinza : '#777777',
+     cinza : '#847e7d',
      cinzaClaro : '#e3e3e3',
      cinzaEscuro: '#232323',
      rubro: "#5b1313",

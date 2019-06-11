@@ -5,13 +5,12 @@ import { KeyboardAvoidingView, StyleSheet, ImageBackground } from 'react-native'
 import Login from './screens/login/Login';
 import SignUp from './screens/register/SignUp';
 import Main from './navigator/MainNavigator';
-import Loading from "./screens/main/Loading";
 import { w } from './api/Dimensions';
 
 export default class CrachaInteligente extends Component {
   state = {
     args: null, 
-    currentScreen: 'login', // can be: 'login' or 'register'. TODO: improve this!
+    currentScreen: 'login',
   };
 
   changeScreen = (screenName, args) => () => {

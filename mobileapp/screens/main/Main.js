@@ -9,13 +9,13 @@ import Styles from '../../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 import firebase from '../../api/MyFirebase';
 
-/**
- * 
- * PARA FAZER O TIMER RODAR EM BACKGROUND: https://github.com/ocetnik/react-native-background-timer
- * Isso deve ser feito apenas por último, pois é necessário que o app seja ejetado no expo, o que é irreversível.
- */
 export default class Main extends Component {
 
+  /**
+   * 
+   * PARA FAZER O TIMER RODAR EM BACKGROUND: https://github.com/ocetnik/react-native-background-timer
+   * Isso deve ser feito apenas por último, pois é necessário que o app seja ejetado no expo, o que é irreversível.
+   */
   static navigationOptions = {
     header: null,
   };
@@ -24,13 +24,6 @@ export default class Main extends Component {
     super(props);
     this.state = {
       currentUser: null,
-      name: "Terry Crews",
-      email: "terry.crews@great.ufc.br",
-      pic: require("../../assets/person.jpg"),
-      role: "Analista de Sistemas",
-      phone: "8588776655",
-      chDaily: 8,
-      chMonthly: 44,
       user: {
       },
       registers: [],
@@ -52,39 +45,21 @@ export default class Main extends Component {
 
   componentDidMount() {
 
-    console.log(this.line)
+    console.log(this.line, "Starting Main...")
     this.syncUser();
     this.syncRegisters();
 
   }
 
-  syncTimer() {
-
-    console.log(this.line, "sync Timer")
-    var regs = this.state.registers;
-
-    //primeiro acesso?
-    if (regs.length <= 0) {
-      this.setState({
-        segundosUp: 0,
-        minutosUp: 0,
-        horasUp: 0,
-        horas: this.state.user.chDaily,
-        minutos: 0,
-        segundos: 0,
-        isRegister: true,
-        textButton: "Fazer Login",
-        isLoadingRegisters: false,
-      })
-      return;
+  formatTime(regs) {
+    var last;
+    if (regs.length % 2 != 0) {
+      // now
+      last = firebase.getFormatedTime();
+    } else {
+      last = regs[regs.length - 1];
     }
-    
-    // last thing was input and then he abandoned. GET NOW
-    if(regs.length%2!=0){
 
-    }
-    
-    const last = regs[regs.length - 1];
     const first = regs[0];
 
     const f = first.split(':');
@@ -107,20 +82,43 @@ export default class Main extends Component {
       minUp = minUp - 1;
     }
 
-    console.log('timer up:', hUp, minUp, segUp)
+    return {
+      segUp: segUp,
+      minUp: minUp,
+      hUp: hUp
+    };
+  }
 
-    // agora, o countdown. Supondo que sempre será um numero inteiro de horas...
-    // 01:34:25
-    // 08:00:00
+  syncTimer() {
 
-    var h = this.state.user.chDaily - hUp - 1;
-    var m = 59 - minUp;
-    var s = 59 - segUp;
+    console.log(this.line, "syncronizing Timer...")
+    var regs = this.state.registers;
 
-    console.log('timer down:', h, m, s);
+    //primeiro acesso?
+    if (regs.length <= 0) {
+      this.setState({
+        segundosUp: 0,
+        minutosUp: 0,
+        horasUp: 0,
+        horas: this.state.user.chDaily,
+        minutos: 0,
+        segundos: 0,
+        isRegister: true,
+        textButton: "Fazer Login",
+        isLoadingRegisters: false,
+      })
+      return;
+    }
 
-    console.log("last action:", this.state.lastAction)
+    // getting the formated time
+    var time = this.formatTime(regs);
 
+    // calculating time lapsed
+    var h = this.state.user.chDaily - time.hUp - 1;
+    var m = 59 - time.minUp;
+    var s = 59 - time.segUp;
+
+    // setting the registers
     for (i = 0; i < regs.length; i++) {
       if (i % 2 == 0) {
         regs[i] = "Entrada: " + regs[i];
@@ -131,9 +129,9 @@ export default class Main extends Component {
 
     this.setState({
       registers: regs,
-      segundosUp: segUp,
-      minutosUp: minUp,
-      horasUp: hUp,
+      segundosUp: time.segUp,
+      minutosUp: time.minUp,
+      horasUp: time.hUp,
       horas: h,
       minutos: m,
       segundos: s,
@@ -142,11 +140,13 @@ export default class Main extends Component {
       isLoadingRegisters: false,
     })
 
-    // verificar se é necessário rodar o cronometro imediatamente
+    // starting or stoping the timer by last action
     this.state.lastAction === "output" ? clearInterval(this.countdown) : this.countdown = setInterval(this.timer, 1000);
-
   }
 
+  /**
+   * NOT TESTED
+   */
   listenForRegisters() {
     firebase.getRef().on('value', (snap) => {
 
@@ -164,11 +164,11 @@ export default class Main extends Component {
   }
 
   /**
-   * Quando a main inicia ela deve carregar a info do usuario
+   * When main starts, the user must be updated
    */
   syncUser = async () => {
     firebase.readInfo().then(value => {
-      console.log(this.line, "sync User:", value);
+      console.log(this.line, "syncronizing User...");
       this.setState({ user: value, isLoadingUser: false, lastAction: value.lastAction })
     }).catch(error => {
       ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
@@ -177,33 +177,31 @@ export default class Main extends Component {
 
   }
   /**
-   * Quando a main inicia ela deve carregar a info do usuario e seta os timers (not optimal)
-   * Formato do registro: dd/mm/yyyy hh:mm:ss
+   * When main starts, the registers must be updated (not optimal)
+   * pattern: dd/mm/yyyy hh:mm:ss
    */
   syncRegisters = async () => {
-    var fullData = new Date();
+    console.log(this.line, "sincronizing registers...");
 
-    console.log(fullData)
     // dd/mm/yy que sera inserida como chave
     today = firebase.getFormatedDate();
 
     firebase.readRegisters(today).then(value => {
 
-      //se nao tiver registros, criar quando apertar login...
+      // if theres no registers, create it when login
       if (!value) {
         this.setState({
           registers: [],
         });
 
-        // sincronizando o ultimo registro com os timers
+        // sync with timers
         this.syncTimer();
         return;
       }
 
-      // existem registros
-      // formatando a data de hoje como regex
+      // Theres registers!
+      //formating date as regex
       today = firebase.getFormatedDate().replace(/\//g, "-");
-      console.log("regex today", today)
 
       regs = [];
       Object.values(value).forEach(child => {
@@ -215,8 +213,6 @@ export default class Main extends Component {
           regs.push(child.split(" ")[1]);
         }
       });
-
-      console.log("registros de hoje:", regs, this.line)
 
       this.setState({
         registers: regs,
@@ -245,10 +241,8 @@ export default class Main extends Component {
       this.countdown = setInterval(this.timer, 1000);
       // action: hh/mm/ss que será o value do today
       const hora = firebase.getFormatedTime();
-      console.log("hora before:", hora)
 
       const reg = this.state.registers;
-      console.log("registers before:", reg)
       reg.push("Entrada: " + hora)
 
       this.setState({
@@ -259,11 +253,10 @@ export default class Main extends Component {
       });
 
       firebase.updateLastAction("input")
-      // ok with this
       firebase.updateRegister(today + hora)
 
     } else {
-      // parando o intervalo...
+      // stoping counter...
       clearInterval(this.countdown)
 
 
@@ -281,7 +274,6 @@ export default class Main extends Component {
       });
 
       firebase.updateLastAction("output")
-      // ok with this
       firebase.updateRegister(today + hora)
     }
 
@@ -301,7 +293,7 @@ export default class Main extends Component {
     var horas = this.state.horas;
     var horasUp = this.state.horasUp;
 
-    if(horas === this.state.user.chDaily){
+    if (horas === this.state.user.chDaily) {
       horas = horas - 1;
       minutos = 60;
       minutosUp = minutosUp - 1;
@@ -312,14 +304,14 @@ export default class Main extends Component {
       minutos = 59;
       minutosUp = 0;
 
-      horasUp =  horasUp + 1;
+      horasUp = horasUp + 1;
 
 
       // acabou o expediente.
       if (horasUp < this.state.user.chDaily) {
 
         horas = horas - 1;
-        
+
       } else {
         const today = firebase.getFormatedDate();
         const hora = firebase.getFormatedTime();
@@ -369,8 +361,7 @@ export default class Main extends Component {
   }
 
   render() {
-    //const { currentUser } = this.state;
-    //console.log(global.firebase.auth())
+
     let adiciona_registers = this.state.registers.map((reg, index) => {
       return (
         <View key={reg.chave} pass_in_reg={reg}>
@@ -412,12 +403,12 @@ export default class Main extends Component {
                     alignSelf: "flex-start",
                     marginHorizontal: 10
                   }}
-                  name="ios-menu" size={Styles.fWidth(32)} color="#fefefe"
+                  name="ios-menu" size={(32)} color="#fefefe"
                 />
 
                 <Image
                   style={{
-                    width: Styles.fWidth(140), height: Styles.fHeight(140), borderRadius: Styles.fWidth(140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
+                    width: (140), height: 140, borderRadius: (140 / 2), borderColor: 'white', borderWidth: 1, margin: 10
                   }}
                   source={this.state.user.pic ? this.state.user.pic : require("../../assets/person.png")}
                 />
@@ -447,7 +438,7 @@ export default class Main extends Component {
 
               <View style={{ padding: 10 }}>
                 <View>
-                  <Text style={{ marginHorizontal: 5, alignSelf: 'flex-start', fontSize: Styles.fWidth(18), color: Styles.color.cinzaEscuro, padding: 8 }}>
+                  <Text style={{ marginHorizontal: 5, alignSelf: 'flex-start', fontSize: (18), color: Styles.color.cinzaEscuro, padding: 8 }}>
                     Registros do Dia:
             </Text>
                 </View>
@@ -517,7 +508,7 @@ const styles = StyleSheet.create({
   },
   numeroDestaqueWhite: {
     color: "#fffffe",
-    fontSize: Styles.fWidth(35),
+    fontSize: (35),
 
 
   },
@@ -546,7 +537,7 @@ const options = {
     borderRadius: 5,
   },
   text: {
-    fontSize: Styles.fWidth(40),
+    fontSize: (40),
     color: '#FFF',
     marginLeft: 7,
   }
