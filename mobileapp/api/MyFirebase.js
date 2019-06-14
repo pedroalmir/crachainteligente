@@ -33,7 +33,7 @@ class MyFirebase {
   }
 
   getRef() {
-    return firebase.database().ref();
+    return firebase.database().ref(this.email.hashCode() + '/registers');
   }
 
 

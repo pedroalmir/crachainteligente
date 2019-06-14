@@ -47,9 +47,145 @@ export default class Main extends Component {
 
     console.log(this.line, "Starting Main...")
     this.syncUser();
-    this.syncRegisters();
+    this.listenForRegisters();
+  }
+
+  /**
+   * When main starts, the user must be updated
+   */
+  syncUser = async () => {
+    firebase.readInfo().then(value => {
+      console.log(this.line, "syncronizing User...");
+      this.setState({ user: value, isLoadingUser: false, lastAction: value.lastAction })
+    }).catch(error => {
+      ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+      console.log(error);
+    })
 
   }
+
+
+
+
+
+  /**
+   * When main starts, the registers must be updated (not optimal)
+   * pattern: dd/mm/yyyy hh:mm:ss
+   */
+  syncRegisters = async () => {
+    console.log(this.line, "sincronizing registers...");
+
+    // dd/mm/yy que sera inserida como chave
+    today = firebase.getFormatedDate();
+
+    firebase.readRegisters(today).then(value => {
+
+      // if theres no registers, create it when login
+      if (!value) {
+        this.setState({
+          registers: [],
+        });
+
+        // sync with timers
+        this.syncTimer();
+        return;
+      }
+
+      // Theres registers!
+      regs = this.formarRegisters(Object.values(value))
+
+      this.setState({ registers: regs })
+
+      // sincronizando o ultimo registro com os timers
+      this.syncTimer();
+    }).catch(error => {
+      ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+      console.log(error);
+    })
+
+  }
+
+  /**
+   * buggy
+   */
+  listenForRegisters() {
+    firebase.getRef().on('value', (snap) => {
+
+      // get children as an array
+      var items = [];
+      snap.forEach((child) => {
+        items.push(child.val());
+      });
+
+      console.log(this.line, "new item:", items[items.length - 1])
+
+      var regs;
+      var la = this.state.lastAction
+      // must return one
+      console.log("is loading registers?", this.state.isLoadingRegisters)
+      if (this.state.isLoadingRegisters) {
+        // ele recebe todos os registros, pois ainda nao foram tratados
+        regs = this.formarRegisters(items);
+      } else {
+        // ele pega os que ja foram tratados e apenas adiciona o novo
+        regs = this.state.registers;
+        regs.push(this.formarRegisters([items[items.length - 1]])[0]);
+        la = this.state.lastAction === "output" ? "input" : "output"
+        // firebase.updateLastAction(la)
+      }
+
+
+      console.log(this.line, "registers after format:", regs, this.line)
+
+
+      this.setState({
+        lastAction: la,
+        isRegister: !this.state.isRegister,
+        registers: regs,
+      });
+
+      this.syncTimer(regs)
+
+
+    });
+  }
+
+
+
+  formarRegisters(regs) {
+
+    console.log(this.line, "inside format registers:", regs)
+
+    today = firebase.getFormatedDate().replace(/\//g, "-");
+
+    var regsOut = []
+    regs.forEach(child => {
+      // para cada registro, pegar que tiver a data de hoje e cortar o dia
+      child = child.replace(/\//g, '-');
+
+      // se o registro for de hoje, adicione aos registros do app
+      if (child.match(new RegExp(today, 'g'))) {
+        regsOut.push(child.split(" ")[1]);
+      }
+    });
+
+    var isEntering = this.state.lastAction === "input";
+
+    // setting the registers
+    for (i = 0; i < regsOut.length; i++) {
+      if (isEntering) {
+        regsOut[i] = "Entrada: " + regsOut[i];
+      } else {
+        regsOut[i] = "Saída: " + regsOut[i];
+      }
+      isEntering = !isEntering
+    }
+
+    console.log("droping format registers:", regsOut, this.line)
+    return regsOut;
+  }
+
+
 
   formatTime(regs) {
     var last;
@@ -82,17 +218,25 @@ export default class Main extends Component {
       minUp = minUp - 1;
     }
 
+    var h = this.state.user.chDaily - hUp - 1;
+    var m = 59 - minUp;
+    var s = 59 - segUp;
+
     return {
       segUp: segUp,
       minUp: minUp,
-      hUp: hUp
+      hUp: hUp,
+      h: h,
+      m: m,
+      s: s
     };
   }
 
-  syncTimer() {
+  syncTimer(regs) {
 
     console.log(this.line, "syncronizing Timer...")
-    var regs = this.state.registers;
+    //var regs = this.state.registers;
+    console.log(regs)
 
     //primeiro acesso?
     if (regs.length <= 0) {
@@ -104,7 +248,7 @@ export default class Main extends Component {
         minutos: 0,
         segundos: 0,
         isRegister: true,
-        textButton: "Fazer Login",
+        textButton: "Check-in",
         isLoadingRegisters: false,
       })
       return;
@@ -114,29 +258,18 @@ export default class Main extends Component {
     var time = this.formatTime(regs);
 
     // calculating time lapsed
-    var h = this.state.user.chDaily - time.hUp - 1;
-    var m = 59 - time.minUp;
-    var s = 59 - time.segUp;
 
-    // setting the registers
-    for (i = 0; i < regs.length; i++) {
-      if (i % 2 == 0) {
-        regs[i] = "Entrada: " + regs[i];
-      } else {
-        regs[i] = "Saída: " + regs[i];
-      }
-    }
+    console.log("time lapsed:", time)
 
     this.setState({
-      registers: regs,
       segundosUp: time.segUp,
       minutosUp: time.minUp,
       horasUp: time.hUp,
-      horas: h,
-      minutos: m,
-      segundos: s,
+      horas: time.h,
+      minutos: time.m,
+      segundos: time.s,
       isRegister: this.state.lastAction === "output",
-      textButton: this.state.lastAction === "output" ? "Fazer Login" : "Fazer Logout",
+      textButton: this.state.lastAction === "output" ? "Check-in" : "Check-out",
       isLoadingRegisters: false,
     })
 
@@ -144,88 +277,9 @@ export default class Main extends Component {
     this.state.lastAction === "output" ? clearInterval(this.countdown) : this.countdown = setInterval(this.timer, 1000);
   }
 
-  /**
-   * NOT TESTED
-   */
-  listenForRegisters() {
-    firebase.getRef().on('value', (snap) => {
 
-      // get children as an array
-      var items = [];
-      snap.forEach((child) => {
-        items.push(child.val());
-      });
 
-      this.setState({
-        registers: this.state.registers.cloneWithRows(items)
-      });
 
-    });
-  }
-
-  /**
-   * When main starts, the user must be updated
-   */
-  syncUser = async () => {
-    firebase.readInfo().then(value => {
-      console.log(this.line, "syncronizing User...");
-      this.setState({ user: value, isLoadingUser: false, lastAction: value.lastAction })
-    }).catch(error => {
-      ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-      console.log(error);
-    })
-
-  }
-  /**
-   * When main starts, the registers must be updated (not optimal)
-   * pattern: dd/mm/yyyy hh:mm:ss
-   */
-  syncRegisters = async () => {
-    console.log(this.line, "sincronizing registers...");
-
-    // dd/mm/yy que sera inserida como chave
-    today = firebase.getFormatedDate();
-
-    firebase.readRegisters(today).then(value => {
-
-      // if theres no registers, create it when login
-      if (!value) {
-        this.setState({
-          registers: [],
-        });
-
-        // sync with timers
-        this.syncTimer();
-        return;
-      }
-
-      // Theres registers!
-      //formating date as regex
-      today = firebase.getFormatedDate().replace(/\//g, "-");
-
-      regs = [];
-      Object.values(value).forEach(child => {
-        // para cada registro, pegar que tiver a data de hoje e cortar o dia
-        child = child.replace(/\//g, '-');
-
-        // se o registro for de hoje, adicione aos registros do app
-        if (child.match(new RegExp(today, 'g'))) {
-          regs.push(child.split(" ")[1]);
-        }
-      });
-
-      this.setState({
-        registers: regs,
-      });
-
-      // sincronizando o ultimo registro com os timers
-      this.syncTimer();
-    }).catch(error => {
-      ToastAndroid.showWithGravityAndOffset('Não foi possível acessar o banco de dados. Por favor, reinicie a aplicação', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-      console.log(error);
-    })
-
-  }
 
 
   /**
@@ -238,7 +292,7 @@ export default class Main extends Component {
 
     if (this.state.isRegister) {
 
-      this.countdown = setInterval(this.timer, 1000);
+
       // action: hh/mm/ss que será o value do today
       const hora = firebase.getFormatedTime();
 
@@ -249,11 +303,13 @@ export default class Main extends Component {
         registers: reg,
         lastAction: "input",
         isRegister: false,
-        textButton: "Fazer Login"
+        textButton: "Check-in"
       });
 
-      firebase.updateLastAction("input")
       firebase.updateRegister(today + hora)
+      firebase.updateLastAction("input").then(res => {
+        this.countdown = setInterval(this.timer, 1000);
+      })
 
     } else {
       // stoping counter...
@@ -270,7 +326,7 @@ export default class Main extends Component {
         registers: reg,
         lastAction: "output",
         isRegister: true,
-        textButton: "Fazer Logout"
+        textButton: "Check-out"
       });
 
       firebase.updateLastAction("output")
