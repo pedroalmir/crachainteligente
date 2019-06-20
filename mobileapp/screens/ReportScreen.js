@@ -218,7 +218,7 @@ export default class ReportScreen extends Component {
         console.log("inseriu o primeiro registro", this.values);
       }else{
         let de = diaExp.split('/');
-        let m = parseInt(m[1]);
+        let m = parseInt(de[1]);
         let u = m-1;
         console.log("valor do m: ", m);
         console.log("valor do u: ", u);
@@ -832,14 +832,14 @@ export default class ReportScreen extends Component {
                 
                 
                 <TouchableOpacity
-                  onPress={this.setTextButton}
+                  onPress={this.syncRegisters}
                   style={styles.buttonView2}
                   activeOpacity={0.6}
                 >
                   <Text style={styles.textButton}>{"GERAR RELATÓRIO DETALHADO"}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={this.setTextButton}
+                  onPress={this.syncRegisters}
                   style={styles.buttonView2}
                   activeOpacity={0.6}
                 >
