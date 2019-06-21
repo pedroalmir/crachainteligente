@@ -144,16 +144,21 @@ class MyFirebase {
    * @param {*} reg 
    */
   updateRegister(reg) {
+    return new Promise(resolve => {
 
-    firebase.database().ref(this.email.hashCode() + '/registers')
-      .push(reg)
-      .then(result => {
-        ToastAndroid.showWithGravityAndOffset('Registro Inserido', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-        console.log("registro atualizado")
-      })
-      .catch(err => {
-        console.log("deu erro ao inserir registro:", err)
-      });
+      firebase.database().ref(this.email.hashCode() + '/registers')
+        .push(reg)
+        .then(result => {
+          ToastAndroid.showWithGravityAndOffset('Registro Inserido', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+          console.log("registro atualizado")
+          resolve(true);
+        })
+        .catch(err => {
+          console.log("deu erro ao inserir registro:", err)
+          resolve(false);
+        });
+    })
+
 
 
   }
