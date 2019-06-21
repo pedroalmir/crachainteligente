@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { StyleSheet, SectionList, ScrollView, TouchableOpacity, ActivityIndicator, ToastAndroid, Platform, Image, Text, View, Dimensions} from 'react-native'
+import { StyleSheet, SectionList, ScrollView, TouchableOpacity, ActivityIndicator, ToastAndroid, Platform, Image, Text, View, Dimensions, AsyncStorage} from 'react-native'
 
 import { w, h, totalSize } from '../api/Dimensions';
 
@@ -9,6 +9,8 @@ import Styles from '../assets/styles/mainStyle';
 import { LinearGradient } from 'expo';
 import firebase from '../api/MyFirebase';
 import DatePicker from 'react-native-datepicker';
+
+
 
 import {
     LineChart,
@@ -74,6 +76,9 @@ export default class ReportScreen extends Component {
     this.diasAbrev=["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     this.eventDays=["Manhã", "Tarde", "Almoço", "Horas Extras"];
     this.values = [];
+    this.valuesMonth = [];
+    this.valuesWeek =[];
+    this.valuesDay = [];
     this.xAxis = [];
 
     this.today =  firebase.getFormatedDate();
@@ -91,6 +96,10 @@ export default class ReportScreen extends Component {
 
     this.syncUser();
     this.syncRegisters();
+    this.returnWeek();
+    this.returnMonth();
+    
+    
 
   }
 
@@ -134,7 +143,9 @@ export default class ReportScreen extends Component {
             });
 
             // sincronizando o ultimo registro com os timers
-            this.syncTimerss();
+            this.syncTimerss();            
+            this.valuesWeek.push(parseFloat(this.state.horasUp+'.'+this.state.minutosUp));
+            AsyncStorage.setItem('@valuesWeek', JSON.stringify(this.valuesWeek)); 
             this.values.push(parseFloat(this.state.horasUp+'.'+this.state.minutosUp));
             console.log("Array de C/H atual: ", this.values);
             
@@ -143,10 +154,12 @@ export default class ReportScreen extends Component {
             console.log(error);
           }));
 
-          case 'month': return (     
+          case 'month': return (
                                
                 this.returnHorasMeses(data)
           );
+
+         
 
                   
     
@@ -156,7 +169,7 @@ export default class ReportScreen extends Component {
 
   }
 
-  returnHorasMeses = (data)=>{
+  returnHorasMeses = async (data)=>{
     console.log("entrou no mês");
     mesRef = data.split('/');
     let totalMin = 0;
@@ -213,17 +226,17 @@ export default class ReportScreen extends Component {
       console.log("total horas:  ", totalHoras);
 
       if(crCel === 0){
+        this.valuesMonth.push(parseFloat(totalHoras));
+        AsyncStorage.setItem('@valuesMonth', JSON.stringify(this.valuesMonth)); 
         this.values.push(parseFloat(totalHoras));
         crCel = 1;
         console.log("inseriu o primeiro registro", this.values);
       }else{
         let de = diaExp.split('/');
-        let m = parseInt(de[1]);
-        let u = m-1;
-        console.log("valor do m: ", m);
-        console.log("valor do u: ", u);
-        this.values[u] = parseFloat(totalHoras);
-        console.log("atualizando o mês", u);
+        this.valuesMonth[parseInt(de[1])-1] = parseFloat(totalHoras);
+        AsyncStorage.setItem('@valuesMonth', JSON.stringify(this.valuesMonth)); 
+        this.values[parseInt(de[1])-1] = parseFloat(totalHoras);
+        console.log("atualizando o array/mês ", parseInt(de[1])-1);
         console.log("valor dos meses", this.values);
       }
       
@@ -333,13 +346,16 @@ export default class ReportScreen extends Component {
            this.values.push(parseInt(Math.random()*100))
   
       }
-      console.log(this.values)
+      console.log("Valores do dia", this.values)
   }
 
 
-  returnWeek = () => {       
+  returnWeek = async () => {       
     this.xAxis =[];
     this.values =[];
+    this.valuesWeek = [];
+
+    await AsyncStorage.setItem('@valuesWeek', JSON.stringify(this.valuesWeek)); 
     day = this.now.getDay();
 
       for(let i = 0; i<=day; i++){
@@ -348,11 +364,14 @@ export default class ReportScreen extends Component {
            this.returnRegisters(fromDate, "week");           
       }
       console.log(this.values)
+      this.syncTimer();
   } 
 
-  returnMonth = () => {
+  returnMonth = async () => {
+    try{
     this.xAxis =[];
-    this.values =[];
+    this.valuesMonth =[];
+    await AsyncStorage.setItem('@valuesMonth', JSON.stringify(this.valuesMonth)); 
     month= this.now.getMonth();
 
     for(let i = 0; i<=month; i++){
@@ -361,7 +380,43 @@ export default class ReportScreen extends Component {
          this.returnRegisters(fromDate, "month");
          
     }
-    console.log(this.values)
+  }catch(err){
+    console.log(err)
+  }
+  }
+
+  weekButton = async ()=>{
+      try{
+        this.xAxis =[];
+        this.values =[];
+        day = this.now.getDay();
+        for(let i = 0; i<=day; i++){
+          this.xAxis.push(this.diasAbrev[i])
+        }
+        this.values = JSON.parse(await AsyncStorage.getItem('@valuesWeek'));
+        this.syncTimer();
+      }catch(err){
+        console.log(err)
+      }
+
+  }
+
+  monthButton = async()=>{ 
+    try{
+    this.xAxis =[],
+    this.values =[],
+    month= this.now.getMonth();
+ 
+    for(let i = 0; i<=month; i++){
+         this.xAxis.push(this.mesesAbrev[i]);               
+    }    
+    
+    this.values = JSON.parse(await AsyncStorage.getItem('@valuesMonth'));
+    this.syncTimer();
+    }catch(err){
+      console.log(err);
+    }
+    
   }
 
   returnData = () => {
@@ -740,7 +795,7 @@ export default class ReportScreen extends Component {
                     </View>
                     <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
                     <TouchableOpacity
-                         onPress={this.returnWeek}
+                         onPress={this.weekButton}
                          style={styles.buttonView}
                          activeOpacity={0.6}
                     >
@@ -749,7 +804,7 @@ export default class ReportScreen extends Component {
                     </View>
                     <View style={{ flexDirection: "column", alignItems: "center", paddingHorizontal: 10 }}>
                     <TouchableOpacity
-                         onPress={this.returnMonth}
+                         onPress={this.monthButton}
                          style={styles.buttonView}
                          activeOpacity={0.6}
                     >
