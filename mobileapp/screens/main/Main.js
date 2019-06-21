@@ -423,7 +423,7 @@ export default class Main extends Component {
       minutos: time.m,
       segundos: time.s,
       //isRegister: this.state.lastAction === "output",
-      textButton: this.state.lastAction === "input" ? "Check-in" : "Check-out",
+      textButton: this.state.lastAction === "output" ? "Check-in" : "Check-out",
       isLoadingRegisters: false,
     })
 
