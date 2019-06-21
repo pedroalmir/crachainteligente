@@ -182,7 +182,7 @@ String getActualDate(){
 void saveEntryInFirebase(String userUID, String cardUID, String date, String type){
   Firebase.pushString(firebaseData, userUID + "/registers", date);
   Firebase.setString(firebaseData, userUID + "/info/lastAction", type);
-  Firebase.setString(firebaseData, "/cards/" + cardUID + "/lastAction", type);
+  //Firebase.setString(firebaseData, "/cards/" + cardUID + "/lastAction", type);
 }
 
 
@@ -222,6 +222,19 @@ String getFirebaseJsonData(String tag){
 }
 
 /**
+ * Get data from Firebase in string format
+ */
+String getFirebaseStringData(String tag){
+  int count = 1;
+  while(!Firebase.getString(firebaseData, tag)){ 
+    Serial.println("Searching in firebase tag: " + tag);
+    if(count == 3){ break; }
+    count++;
+  }
+  return (count == 3) ? "" : firebaseData.stringData();
+}
+
+/**
  * Convert card UID to String
  */
 String convertCardUID2String(){
@@ -257,8 +270,8 @@ void loop() {
   }else{
     const char* userUID = parsed["uid"];
     const char* userName = parsed["name"];
-    const char* laCharArray = parsed["lastAction"];
-    String lastAction = String(laCharArray);
+    //const char* laCharArray = parsed["lastAction"];
+    String lastAction = getFirebaseStringData("/" + userUID + "/info/lastAction");
     
     String type = "";
     if(lastAction == "input"){
