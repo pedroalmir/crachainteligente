@@ -39,7 +39,9 @@ export default class SignUp extends Component {
     }, () => {
       if (name !== '' && email !== '' && password !== '' && (repeat !== '' && repeat === password)) {
         // tudo ok, pode criar
-        MyFirebase.createFirebaseAccount(name, email, password)
+        if(MyFirebase.createFirebaseAccount(name, email, password)){
+          this.props.change('login');
+        }
 
         //this.createFireBaseAccount(name, email, password);
         // na main, ele deve redirecionar para o Perfil, onde as informações serão atualizadas
@@ -50,24 +52,6 @@ export default class SignUp extends Component {
     })
   };
 
-  createFireBaseAccount = (name, email, password) => {
-    this.setState({ isCreatingAccount: true });
-    MyFirebase.createFirebaseAccount(name, email, password)
-      .then(result => {
-        //if(result) this.props.change('login')();
-
-        if (result) {
-          this.setState({ isCreatingAccount: false });
-          this.props.change('login')();
-          //Alert.alert('Info', 'Cadastro realizado com sucesso!');
-          ToastAndroid.showWithGravityAndOffset('Cadastro realizado com sucesso!', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-        } else {
-          ToastAndroid.showWithGravityAndOffset('Não foi possível realizar o cadastro', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-        }
-      }).catch(err => {
-        console.log(err);
-      });
-  };
 
   changeInputFocus = name => () => {
     switch (name) {

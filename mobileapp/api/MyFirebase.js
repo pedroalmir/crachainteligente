@@ -196,32 +196,11 @@ class MyFirebase {
     this.email = email;
 
     return new Promise(resolve => {
-      firebase.auth().createUserWithEmailAndPassword(email, password).catch(error => {
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            ToastAndroid.showWithGravityAndOffset('This email address is already taken', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-            break;
-          case 'auth/invalid-email':
-            ToastAndroid.showWithGravityAndOffset('Invalid e-mail address format', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-            break;
-          case 'auth/weak-password':
-            ToastAndroid.showWithGravityAndOffset('Password is too weak', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-            break;
-          default:
-            ToastAndroid.showWithGravityAndOffset('Check your internet connection', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-        }
-        console.log("Erro ao fazer login")
-        resolve(false);
-      }).then(info => {
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(info => {
 
-        if (info) {
-          // adicionando o username
-          firebase.auth().currentUser.updateProfile({
-            displayName: name
-          }).then(res => {
-
-            // criando a info do usuario
-            firebase.database().ref(email.hashCode() + '/info').set({
+          firebase.database().ref(email.hashCode()).set({
+            info: {
               email: email,
               name: name,
               phone: "",
@@ -229,31 +208,44 @@ class MyFirebase {
               role: "Desconhecido",
               chDaily: 8,
               chMonthly: 44,
-              lastAction: "output",
-            }).then(res => {
-
-              // criando os registros dele
-              firebase.database().ref(email.hashCode()).set({
-                registers: []
-              }).then(res => {
-
-                ToastAndroid.showWithGravityAndOffset('Usuário cadastrado com sucesso', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
-                console.log("Usuario cadastrado!")
-                resolve(true);
+              lastAction: "output"
+            },
+            registers: []
+          })
+            .then(res => {
+              firebase.auth().currentUser.updateProfile({
+                displayName: name
               })
+                .then(res => {
+                  ToastAndroid.showWithGravityAndOffset('Usuário cadastrado com sucesso', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+                  console.log("Usuario cadastrado!")
+                  resolve(true);
+                })
                 .catch(err => {
-                  console.log("erro ao cadastrar os registros", err)
-                  resolve(false);
+                  console.log("Erro ao atualizar o nome do usuario", err);
                 });
-
-            }).catch(err => {
-              console.log("erro ao cadastrar a info", err)
+            })
+            .catch(err => {
+              console.log("erro ao cadastrar a info e registers", err)
               resolve(false);
             });
-          });
-        }
-        resolve(false);
-      });
+        })
+        .catch(error => {
+          switch (error.code) {
+            case 'auth/email-already-in-use':
+              ToastAndroid.showWithGravityAndOffset('This email address is already taken', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+              break;
+            case 'auth/invalid-email':
+              ToastAndroid.showWithGravityAndOffset('Invalid e-mail address format', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+              break;
+            case 'auth/weak-password':
+              ToastAndroid.showWithGravityAndOffset('Password is too weak', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+              break;
+            default:
+              ToastAndroid.showWithGravityAndOffset('Check your internet connection', ToastAndroid.LONG, ToastAndroid.BOTTOM, 25, 50);
+          }
+          resolve(false);
+        })
     });
   };
 
