@@ -333,7 +333,6 @@ export default class Main extends Component {
       this.setState({
         registers: reg,
         lastAction: "input",
-        //textButton: "Check-in"
       });
 
       firebase.updateLastAction("input")
@@ -350,7 +349,6 @@ export default class Main extends Component {
       this.setState({
         registers: reg,
         lastAction: "output",
-        //textButton: "Check-out"
       });
 
       firebase.updateLastAction("output")
