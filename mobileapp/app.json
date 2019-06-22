@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Cracha Inteligente",
+    "name": "GREat ID",
     "slug": "mobileapp",
     "privacy": "public",
     "sdkVersion": "32.0.0",
@@ -26,7 +26,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.great.crachaInteligente"
+      "package": "com.great.greatid"
     }
   }
 }
