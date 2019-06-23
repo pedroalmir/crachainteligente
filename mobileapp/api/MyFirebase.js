@@ -78,7 +78,12 @@ class MyFirebase {
 
     // dd/mm/yy que sera inserida como chave
     mes = fullData.getMonth() + 1;
-    const today = fullData.getDate() + '/' + mes + '/' + fullData.getUTCFullYear() + " ";
+    mes = mes < 10? "0" + mes: mes;
+    
+    dia = fullData.getDate();
+    dia = dia < 10? "0" + dia: dia;
+    
+    const today = dia + '/' + mes + '/' + fullData.getUTCFullYear() + " ";
 
     return today;
   }
