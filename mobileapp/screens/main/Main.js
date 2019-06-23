@@ -79,7 +79,7 @@ export default class Main extends Component {
 
 
   /**
-   * buggy
+   * Listens for registers changes via app or budget
    */
   listenForRegisters() {
     firebase.getRef().on('value', (snap) => {
@@ -99,10 +99,8 @@ export default class Main extends Component {
 
 
 
-      if (!this.state.isLoadingRegisters && !this.state.pressedButton) { // e !botaoPressed
-        // Entrada dsoifjs odsfsdoi
+      if (!this.state.isLoadingRegisters /*&& !this.state.pressedButton*/) { // e !botaoPressed
         la = this.state.lastAction === "output" ? "input" : "output"
-        //firebase.updateLastAction(la) // aqui, o cartao atualiza o la sozinho
       }
 
 
@@ -123,17 +121,13 @@ export default class Main extends Component {
 
       la === "input" ? this.countdown = setInterval(this.timer, 1000) : clearInterval(this.countdown)
 
-      this.syncTimer(regs)
-
-
+      this.syncTimer(regs);
     });
   }
 
 
 
   formarRegisters(regs) {
-
-    console.log(this.line, "inside format registers:")
 
     today = firebase.getFormatedDate().replace(/\//g, "-");
 
@@ -148,7 +142,6 @@ export default class Main extends Component {
       }
     });
 
-    var isEntering = regs.length % 2 != 0;
     console.log("la:", this.state.lastAction)
 
     // setting the registers
@@ -159,11 +152,13 @@ export default class Main extends Component {
         regsOut[i] = "Saída: " + regsOut[i];
       }
     }
-
-    console.log("droping format registers:", this.line)
     return regsOut;
   }
 
+  /**
+   * separates each hour from the date in registers and returns an array of hours
+   * @param {*} regs 
+   */
   separateRegister(regs) {
     re = [];
     regs.forEach(child => {
@@ -173,6 +168,10 @@ export default class Main extends Component {
   }
 
 
+  /**
+   * splits a register shaped like hour:minutes:seconds and returns an array.
+   * @param {*} reg 
+   */
   separateTime(reg) {
     return reg.split(":");
   }
@@ -255,139 +254,15 @@ export default class Main extends Component {
   }
 
 
-  formatTime(regs) {
-    if (this.state.lastAction === "output" && !this.state.isLoadingRegisters) { // o tempo decorrido nao contou
-      return {
-        segUp: this.state.segundosUp,
-        minUp: this.state.minutosUp,
-        hUp: this.state.horasUp,
-        h: this.state.horas,
-        m: this.state.minutos,
-        s: this.state.segundos
-      };
-    }
-
-    regss = []
-    for (i = 0; i < regs.length; i++) {
-      regss[i] = regs[i].split(" ")[1]
-    }
-    //console.log(this.line, "formating time with regss:")
-
-    var last;
-    var first;
-
-    if (regss.length % 2 != 0) {
-      // now
-      last = firebase.getFormatedTime();
-      first = regss[regss.length - 1];
-    } else {
-      last = regss[regss.length - 1];
-      first = regss[regss.length - 2];
-    }
-
-    const f = first.split(':');
-    const l = last.split(':');
-
-    // equal above...
-
-    var sup = this.state.segundosUp + (f[0] - l[0]) // pode dar > 60
-    var mup = this.state.minutosUp + (f[1] - l[1]) // pode dar > 60
-    var hup = this.state.horasUp + (f[2] - l[2]) // pode dar > 60
-
-    if (sup >= 60) {
-      mup = mup + Math.trunc(Math.floor(sup / 60)); // 70 / 60 = 1 
-      sup = sup % 60; // 70 % 60 = 10
-    }
-    if (mup >= 60) {
-      hup = hup + Math.trunc(Math.floor(mup / 60)); // 70 / 60 = 1 
-      mup = mup % 60; // 70 % 60 = 10
-    }
-
-    // now, timer
-
-    var h = (this.state.user.chDaily - hUp - 1) >= 0 ? this.state.user.chDaily - hUp - 1 : 0;
-    var m = 59 - minUp;
-    var s = 59 - segUp;
-
-    return {
-      segUp: sup,
-      minUp: mup,
-      hUp: hup,
-      h: h,
-      m: m,
-      s: s
-    };
-
-  }
 
 
 
 
-  fformatTime(regs) {
-
-    if (this.state.lastAction === "output" && !this.state.isLoadingRegisters) { // o tempo decorrido nao contou
-      return {
-        segUp: this.state.segundosUp,
-        minUp: this.state.minutosUp,
-        hUp: this.state.horasUp,
-        h: this.state.horas,
-        m: this.state.minutos,
-        s: this.state.segundos
-      };
-    }
-
-    // Entrada: kdjfs dfsoiudo -> fdjshkj dsfkjsf
-    regss = []
-    for (i = 0; i < regs.length; i++) {
-      regss[i] = regs[i].split(" ")[1]
-    }
-    console.log(this.line, "formating time with regss:")
-    var last;
-    var first;
-    if (regss.length % 2 != 0) {
-      // now
-      last = firebase.getFormatedTime();
-      first = regss[regss.length - 1];
-    } else {
-      last = regss[regss.length - 1];
-      first = regss[regss.length - 2];
-    }
-
-
-    const f = first.split(':');
-    const l = last.split(':');
-
-    var hUp = l[0] - f[0];
-
-    //minutos decorridos
-
-    var minUp = l[1] - f[1]
-    if (minUp < 0) {
-      minUp = 60 + minUp;
-      hUp = hUp - 1;
-    }
-
-    //segundos decorridos
-    var segUp = l[2] - f[2];
-    if (segUp < 0) {
-      segUp = 60 + segUp;
-      minUp = minUp - 1;
-    }
-
-    var h = this.state.user.chDaily - hUp - 1;
-    var m = 59 - minUp;
-    var s = 59 - segUp;
-
-    return {
-      segUp: segUp,
-      minUp: minUp,
-      hUp: hUp,
-      h: h,
-      m: m,
-      s: s
-    };
-  }
-
+  /**
+   * receives an array of registers shaped as "date time" 
+   * and syncronizes the app timers
+   * @param {*} regs 
+   */
   syncTimer(regs) {
 
     console.log(this.line, "syncronizing Timer...")
@@ -403,7 +278,7 @@ export default class Main extends Component {
         minutos: 0,
         segundos: 0,
         isRegister: true,
-        textButton: "Check-in",
+        //textButton: "Check-in",
         isLoadingRegisters: false,
       })
       return;
@@ -422,12 +297,8 @@ export default class Main extends Component {
       horas: time.h,
       minutos: time.m,
       segundos: time.s,
-      //isRegister: this.state.lastAction === "output",
-      textButton: this.state.lastAction === "output" ? "Check-in" : "Check-out",
       isLoadingRegisters: false,
-    })
-
-    // starting or stoping the timer by last action
+    });
 
   }
 
@@ -437,7 +308,7 @@ export default class Main extends Component {
 
 
   /**
-   * Callback for When the login / logout button is pressed
+   * Callback for When the checkin / checkout button is pressed
    */
   setTextButton = () => {
     //clearInterval(this.countdown)
@@ -462,7 +333,6 @@ export default class Main extends Component {
       this.setState({
         registers: reg,
         lastAction: "input",
-        textButton: "Check-in"
       });
 
       firebase.updateLastAction("input")
@@ -479,7 +349,6 @@ export default class Main extends Component {
       this.setState({
         registers: reg,
         lastAction: "output",
-        textButton: "Check-out"
       });
 
       firebase.updateLastAction("output")
@@ -678,7 +547,7 @@ export default class Main extends Component {
                   style={styles.buttonView}
                   activeOpacity={0.6}
                 >
-                  <Text style={styles.textButton}>{this.state.textButton}</Text>
+                  <Text style={styles.textButton}>{this.state.lastAction === "output"? "Check-in":"Check-out"}</Text>
                 </TouchableOpacity>
               </View>
 
