@@ -146,7 +146,7 @@ export default class ReportScreen extends Component {
             this.syncTimerss();            
             this.valuesWeek.push(parseFloat(this.state.horasUp+'.'+this.state.minutosUp));
             AsyncStorage.setItem('@valuesWeek', JSON.stringify(this.valuesWeek)); 
-            this.values.push(parseFloat(this.state.horasUp+'.'+this.state.minutosUp));
+            //this.values.push(parseFloat(this.state.horasUp+'.'+this.state.minutosUp));
             console.log("Array de C/H atual: ", this.values);
             
           }).catch(error => {
@@ -359,7 +359,7 @@ export default class ReportScreen extends Component {
     day = this.now.getDay();
 
       for(let i = 0; i<=day; i++){
-           this.xAxis.push(this.diasAbrev[i])
+           //this.xAxis.push(this.diasAbrev[i])
            fromDate = moment(this.now).subtract((day-i),'days').endOf('day').format('DD/M/YYYY');
            this.returnRegisters(fromDate, "week");           
       }
