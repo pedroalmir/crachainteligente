@@ -26,6 +26,9 @@
 #define WIFI_SSID "CLARO_2GDB49CF"
 #define WIFI_PWD "9EDB49CF"
 
+//#define WIFI_SSID "J221"
+//#define WIFI_PWD "847aaubh"
+
 #define FIREBASE_HOST "crachainteligence.firebaseio.com"
 #define FIREBASE_AUTH "QxdC3N03YVSqUmSkrx1s0PlH0FkmGPkYG5TE8bSS"
 
@@ -196,6 +199,7 @@ void saveEntryInFirebase(String userUID, String cardUID, String date, String typ
 void connectFirebase(){
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   Firebase.reconnectWiFi(true);
+  //Firebase.setMaxRetry(firebaseData, 3);
 }
 
 void endFirebaseConnection(){
@@ -225,13 +229,15 @@ String getFirebaseJsonData(String tag){
  * Get data from Firebase in string format
  */
 String getFirebaseStringData(String tag){
-  int count = 1;
+  /*int count = 1;
   while(!Firebase.getString(firebaseData, tag)){ 
     Serial.println("Searching in firebase tag: " + tag);
     if(count == 3){ break; }
     count++;
   }
-  return (count == 3) ? "" : firebaseData.stringData();
+  return (count == 3) ? "" : firebaseData.stringData();*/
+  Firebase.getString(firebaseData, tag);
+  return firebaseData.stringData();
 }
 
 /**
@@ -256,22 +262,26 @@ void loop() {
   printMessageLCD("Wait a moment!", "Processing...", 0);
     
   /* Reading data from Firebase... */
-  String json = getFirebaseJsonData("/cards/" + cardUID);
-  
+  //String json = getFirebaseJsonData("/cards/" + cardUID);
   /* Capacity of the memory pool in bytes */
-  StaticJsonBuffer<200> JSONBuffer;
+  //StaticJsonBuffer<200> JSONBuffer;
   /* Deserialize the JSON document */
-  JsonObject& parsed = JSONBuffer.parseObject(json);
+  //JsonObject& parsed = JSONBuffer.parseObject(json);
   
-  /* Test if parsing succeeds. */
-  if (!parsed.success()) {
+  String userUID = getFirebaseStringData("/cards/" + cardUID + "/uid");
+    
+  /* Test if parsing succeeds. !parsed.success() */
+  //if (!parsed.success()) {
+  if (userUID.length() == 0) {
     Serial.println("Access Denied!");
     printMessageLCD("Access Denied!!! ", "Sign up now!", LED_ACCESS_DENIED);
   }else{
-    const char* userUID = parsed["uid"];
-    const char* userName = parsed["name"];
+    //const char* userUID = parsed["uid"];
+    //const char* userName = parsed["name"];
     //const char* laCharArray = parsed["lastAction"];
-    String lastAction = getFirebaseStringData("/" + userUID + "/info/lastAction");
+    
+    String userName = getFirebaseStringData("/cards/" + cardUID + "/name");
+    String lastAction = getFirebaseStringData("/" + String(userUID) + "/info/lastAction");
     
     String type = "";
     if(lastAction == "input"){
